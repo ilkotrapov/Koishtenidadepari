@@ -1,7 +1,20 @@
+using Delivery_System__Team_Enif_.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System;
+
 public class Program
 {
     public static void ConfigureServices(WebApplicationBuilder builder)
     {
+        // Configure the DbContext with SQL Server and the connection string
+        builder.Services.AddDbContext<ProjectDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+        builder.Services.AddIdentity<User, IdentityRole>()
+            .AddEntityFrameworkStores<ProjectDbContext>()
+            .AddDefaultTokenProviders();
+
         // Add services to the container.
         builder.Services.AddControllersWithViews();
     }
@@ -21,6 +34,7 @@ public class Program
 
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllerRoute(
