@@ -9,7 +9,7 @@ public class Program
     {
         // Configure the DbContext with SQL Server and the connection string
         builder.Services.AddDbContext<ProjectDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStrings:DefaultConnection")));
 
         builder.Services.AddIdentity<User, IdentityRole>()
             .AddEntityFrameworkStores<ProjectDbContext>()
@@ -27,6 +27,14 @@ public class Program
             app.UseExceptionHandler("/Home/Error");
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
+        }
+
+        using (var serviceScope = app.Services.CreateScope())
+        {
+            using(var dbContext = serviceScope.ServiceProvider.GetService<ProjectDbContext>())
+            {
+                dbContext.Database.Migrate();
+            }
         }
 
         app.UseHttpsRedirection();
@@ -47,7 +55,10 @@ public class Program
     {
 
 
+
         var builder = WebApplication.CreateBuilder(args);
+
+
         ConfigureServices(builder);
 
         var app = builder.Build();
