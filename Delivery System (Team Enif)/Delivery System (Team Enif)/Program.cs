@@ -9,7 +9,7 @@ public class Program
     {
         // Configure the DbContext with SQL Server and the connection string
         builder.Services.AddDbContext<ProjectDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("ConnectionStrings:DefaultConnection")));
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         builder.Services.AddIdentity<User, IdentityRole>()
             .AddEntityFrameworkStores<ProjectDbContext>()
