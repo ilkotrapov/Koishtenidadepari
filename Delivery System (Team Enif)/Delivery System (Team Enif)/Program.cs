@@ -1,7 +1,15 @@
+using Delivery_System__Team_Enif_.Data;
+using Microsoft.EntityFrameworkCore;
+
 public class Program
 {
     public static void ConfigureServices(WebApplicationBuilder builder)
     {
+        builder.Services.AddDbContext<ProjectDbContext>(options =>
+        {
+            options.UseSqlServer(builder.Configuration["ConnectionStrings:DefaultConnection"]);
+        });
+
         // Add services to the container.
         builder.Services.AddControllersWithViews();
     }
@@ -14,6 +22,14 @@ public class Program
             app.UseExceptionHandler("/Home/Error");
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
+        }
+
+        using (var serviceScope = app.Services.CreateScope())
+        {
+            using(var dbContext = serviceScope.ServiceProvider.GetService<ProjectDbContext>())
+            {
+                dbContext.Database.Migrate();
+            }
         }
 
         app.UseHttpsRedirection();
@@ -33,7 +49,10 @@ public class Program
     {
 
 
+
         var builder = WebApplication.CreateBuilder(args);
+
+
         ConfigureServices(builder);
 
         var app = builder.Build();
