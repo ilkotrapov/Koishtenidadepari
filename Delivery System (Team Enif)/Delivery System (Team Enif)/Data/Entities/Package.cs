@@ -2,12 +2,16 @@
 {
     public class Package : BaseEntity
     {
-        public string Product {  get; set; }
-
+        public string SenderName { get; set; }
+        public string RecipientName { get; set; }
+        public string SenderAddress { get; set; }
+        public string RecipientAddress { get; set; }
         public double Weight { get; set; }
-
-        public string Address { get; set; }
-
-        public double ProductPrice { get; set; }
+        public string Size { get; set; }
+        public string DeliveryType { get; set; } // Standard, Express, etc.
+        public string Status { get; set; } // In Transit, Delivered, etc.
+        public DateTime DeliveryDate { get; set; }
+        public double Pishka { get; set; }
+        
     }
 }

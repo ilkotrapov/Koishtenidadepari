@@ -14,7 +14,7 @@ namespace Delivery_System__Team_Enif_.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> CreatePackage([FromBody] Package package)
+        public async Task<IActionResult> CreatePackage([FromBody] GPackage package)
         {
             if (ModelState.IsValid)
             {
