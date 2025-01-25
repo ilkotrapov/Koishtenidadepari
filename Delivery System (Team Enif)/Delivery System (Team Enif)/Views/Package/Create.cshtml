@@ -1,4 +1,5 @@
-﻿@model GPackage
+﻿@using Delivery_System__Team_Enif_.Data.Entities
+@model Package
 
 @{
     ViewData["Title"] = "Create";
@@ -10,7 +11,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-controller="Package" asp-action="CreateConfirm" asp-action="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="SenderName" class="control-label"></label>
