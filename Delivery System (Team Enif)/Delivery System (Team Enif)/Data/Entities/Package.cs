@@ -10,8 +10,6 @@
         public string Size { get; set; }
         public string DeliveryType { get; set; } // Standard, Express, etc.
         public string Status { get; set; } // In Transit, Delivered, etc.
-        public DateTime DeliveryDate { get; set; }
-        public double Pishka { get; set; }
-        
+        public DateTime DeliveryDate { get; set; } 
     }
 }

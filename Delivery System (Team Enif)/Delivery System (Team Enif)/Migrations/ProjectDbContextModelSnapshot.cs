@@ -72,32 +72,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.ToTable("Deliveries");
                 });
 
-            modelBuilder.Entity("Office", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ContactInfo")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("WorkingHours")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Offices");
-                });
-
-            modelBuilder.Entity("Package", b =>
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Package", b =>
                 {
                     b.Property<int>("Id")
@@ -112,12 +86,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.Property<string>("DeliveryType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Pishka")
-                        .HasColumnType("float");
-
-                    b.Property<double>("ProductPrice")
-                        .HasColumnType("float");
 
                     b.Property<string>("RecipientAddress")
                         .IsRequired()
@@ -174,6 +142,53 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Offices");
+                });
+
+            modelBuilder.Entity("Package", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DeliveryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DeliveryType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RecipientAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RecipientName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SenderName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Size")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Weight")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("package");
                 });
 
             modelBuilder.Entity("User", b =>
