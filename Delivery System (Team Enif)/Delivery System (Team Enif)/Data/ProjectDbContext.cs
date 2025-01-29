@@ -8,7 +8,7 @@ namespace Delivery_System__Team_Enif_.Data
 {
     public class ProjectDbContext : DbContext
     {
-        public DbSet<Package> package { get; set; }
+        public DbSet<Package> Package { get; set; }
         public ProjectDbContext(DbContextOptions<ProjectDbContext> options) : base(options) { }
 
         public DbSet<User> Users { get; set; }

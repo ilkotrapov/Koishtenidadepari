@@ -1,34 +1,44 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Delivery_System__Team_Enif_.Data;
+using Delivery_System__Team_Enif_.Data.Entities;
 
 namespace Delivery_System__Team_Enif_.Controllers
 {
     public class PackageController : Controller
     {
-        private readonly ProjectDbContext _context;
+        private readonly ProjectDbContext projectDbContext;
 
-        public PackageController(ProjectDbContext context)
+        public PackageController(ProjectDbContext projectDbContext)
         {
-            _context = context;
+            this.projectDbContext = projectDbContext;
         }
 
-        [HttpPost("create")]
-        public async Task<IActionResult> CreatePackage([FromBody] GPackage package)
+        [HttpGet]
+        public IActionResult Index()
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(package);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-             return View(package);
+            return View(this.projectDbContext.Package.ToList());
+        }
+
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult CreateConfirm(Package package)
+        {
+                this.projectDbContext.Add(package);
+                this.projectDbContext.SaveChanges();
+
+                return RedirectToAction("Index");
         }
 
         [HttpGet("track/{trackingNumber}")]
         public async Task<IActionResult> TrackPackage(string trackingNumber)
         {
-            var package = await _context.Packages.FirstOrDefaultAsync(p => p.Status == trackingNumber);
+            var package = await projectDbContext.Packages.FirstOrDefaultAsync(p => p.Status == trackingNumber);
             if (package == null) return NotFound("Package not found.");
 
             return Ok(package);
@@ -37,14 +47,14 @@ namespace Delivery_System__Team_Enif_.Controllers
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdatePackageStatus(int id, [FromBody] string newStatus)
         {
-            var package = await _context.Packages.FindAsync(id);
+            var package = await projectDbContext.Packages.FindAsync(id);
             if (package == null) return NotFound();
 
             package.Status = newStatus;
             try
             {
-                _context.Update(package);
-                await _context.SaveChangesAsync();
+                projectDbContext.Update(package);
+                await projectDbContext.SaveChangesAsync();
             }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -60,13 +70,6 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction(nameof(Index));
         }
 
-
-        // GET: Packages
-        public async Task<IActionResult> Index()
-        {
-            return View(await _context.Packages.ToListAsync());
-        }
-
         // GET: Packages/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -75,7 +78,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return NotFound();
             }
 
-            var package = await _context.Packages
+            var package = await projectDbContext.Packages
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
             {
@@ -85,12 +88,9 @@ namespace Delivery_System__Team_Enif_.Controllers
             return View(package);
         }
 
-        // GET: Packages/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        
         // GET: Packages/Delete/5
+
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -98,7 +98,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return NotFound();
             }
 
-            var package = await _context.Packages
+            var package = await projectDbContext.Packages
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
             {
@@ -112,19 +112,19 @@ namespace Delivery_System__Team_Enif_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var package = await _context.Packages.FindAsync(id);
+            var package = await projectDbContext.Packages.FindAsync(id);
             if (package != null)
             {
-                _context.Packages.Remove(package);
+                projectDbContext.Packages.Remove(package);
             }
 
-            await _context.SaveChangesAsync();
+            await projectDbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PackageExists(int id)
         {
-            return _context.Packages.Any(e => e.Id == id);
+            return projectDbContext.Packages.Any(e => e.Id == id);
         }
     }
 }
