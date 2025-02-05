@@ -37,7 +37,7 @@ namespace Delivery_System__Team_Enif_.Migrations
 
                     b.HasKey("CourierId");
 
-                    b.ToTable("Couriers");
+                    b.ToTable("Couriers", (string)null);
                 });
 
             modelBuilder.Entity("Delivery", b =>
@@ -69,7 +69,7 @@ namespace Delivery_System__Team_Enif_.Migrations
 
                     b.HasIndex("CourierId");
 
-                    b.ToTable("Deliveries");
+                    b.ToTable("Deliveries", (string)null);
                 });
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Package", b =>
@@ -116,7 +116,7 @@ namespace Delivery_System__Team_Enif_.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Package");
+                    b.ToTable("Package", (string)null);
                 });
 
             modelBuilder.Entity("Office", b =>
@@ -141,54 +141,7 @@ namespace Delivery_System__Team_Enif_.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Offices");
-                });
-
-            modelBuilder.Entity("Package", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("DeliveryDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DeliveryType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RecipientAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("RecipientName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderAddress")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SenderName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Size")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("Weight")
-                        .HasColumnType("float");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("package");
+                    b.ToTable("Offices", (string)null);
                 });
 
             modelBuilder.Entity("User", b =>
@@ -251,7 +204,7 @@ namespace Delivery_System__Team_Enif_.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Delivery", b =>
