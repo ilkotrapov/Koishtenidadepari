@@ -179,3 +179,233 @@ header:hover {
         margin: 10px 0;
     }
 }
+
+
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #F4F4F9;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+header {
+    background-color: #4B0082;
+    color: white;
+    width: 100%;
+    padding: 15px 30px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
+}
+
+header:hover {
+    background-color: #6A0DAD;
+}
+
+header .logo {
+    font-size: 28px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.nav-menu {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+    padding-top: 10px;
+}
+
+.nav-menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+    text-transform: uppercase;
+    transition: color 0.3s ease;
+}
+
+.nav-menu a:hover {
+    color: #F4F4F9;
+}
+
+
+.main-content {
+    margin-top: 100px;
+    padding: 40px 20px;
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    padding: 30px;
+    background-color: #D9D9D9;
+    box-shadow: 0 1px 20px rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    border: 3px solid #6A0DAD;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+
+    .container:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); 
+        transform: scale(1.03); 
+    }
+
+
+.delivery-form {
+    background-color: #6c757dc4;
+    padding: 60px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 700px;
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 1s forwards 0.5s;
+}
+
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.delivery-form h2 {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2C3E50;
+    margin-bottom: 25px;
+    letter-spacing: 1px;
+}
+
+.form-row {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 55px;
+    justify-content: space-between;
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.form-column {
+    flex: 1;
+    background-color: #F9F9F9;
+    padding: 65px;
+    border-radius: 18px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.form-column h3 {
+    font-size: 50px;
+    color: #34495E;
+    margin-bottom: 15px;
+}
+
+
+.delivery-form input,
+.delivery-form select,
+.delivery-form textarea {
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+
+input::placeholder {
+    color: #bbb;
+    transition: color 0.3s ease;
+}
+
+input:focus::placeholder {
+    color: #6A0DAD;
+}
+
+
+.delivery-form input:focus,
+.delivery-form select:focus,
+.delivery-form textarea:focus {
+    border-color: #3498DB;
+    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+}
+
+.delivery-form textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+
+.delivery-form button {
+    width: 100%;
+    padding: 18px;
+    background-color: #3498DB;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.delivery-form button:hover {
+    background-color: #2980B9;
+    transform: scale(1.05);
+}
+
+
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+    }
+
+    .delivery-form {
+        padding: 30px;
+    }
+
+    header {
+        padding: 20px;
+    }
+
+    .nav-menu {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .nav-menu a {
+        font-size: 16px;
+    }
+
+    .container {
+        width: 100%;
+    }
+}
+
