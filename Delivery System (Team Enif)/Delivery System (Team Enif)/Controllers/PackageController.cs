@@ -80,17 +80,27 @@ namespace Delivery_System__Team_Enif_.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return NotFound("The provided package id is null");
             }
 
-            var package = await projectDbContext.Packages
+            var package = await projectDbContext.Package
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
             {
-                return NotFound();
+                return NotFound("No package with provided package id");
             }
 
-            return View(package);
+            PackageViewModel viewModel = new PackageViewModel
+            {
+                Id = package.Id,
+                SenderName = package.SenderName,
+                RecipientName = package.RecipientName,
+                DeliveryType = package.DeliveryType,
+                Status = package.Status,
+                DeliveryDate = package.DeliveryDate
+            };
+
+            return View(viewModel);
         }
 
         
@@ -100,17 +110,32 @@ namespace Delivery_System__Team_Enif_.Controllers
         {
             if (id == null)
             {
-                return NotFound();
+                return NotFound("The provided package id is null");
             }
 
-            var package = await projectDbContext.Packages
+            var package = await projectDbContext.Package
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
             {
-                return NotFound();
+                return NotFound("No package with provided package id");
             }
 
-            return View(package);
+            if (package.DeliveryType ! == "pending")
+            {
+                return BadRequest("The package ca not be deleted!");
+            }
+
+            PackageViewModel viewModel = new PackageViewModel
+            {
+                Id = package.Id,
+                SenderName = package.SenderName,
+                RecipientName = package.RecipientName,
+                DeliveryType = package.DeliveryType,
+                Status = package.Status,
+                DeliveryDate = package.DeliveryDate
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost, ActionName("Delete")]
