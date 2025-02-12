@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Delivery>
+﻿@model PackageViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -13,34 +13,34 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.PackageId)
+               ID
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PickupTime)
+                Delivery Date
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DeliveryTime)
+                DeliveryType
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.DeliveryStatus)
+                Status
             </th>
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
+        @foreach (var item in Model.Packages) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.PackageId)
+                @Html.DisplayFor(modelItem => item.Id)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.PickupTime)
+                @Html.DisplayFor(modelItem => item.DeliveryDate)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DeliveryTime)
+                @Html.DisplayFor(modelItem => item.DeliveryType)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.DeliveryStatus)
+                @Html.DisplayFor(modelItem => item.Status)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
@@ -48,6 +48,6 @@
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
             </td>
         </tr>
-}
+        }
     </tbody>
 </table>

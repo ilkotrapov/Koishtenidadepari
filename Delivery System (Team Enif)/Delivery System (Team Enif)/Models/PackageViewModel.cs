@@ -1,5 +1,8 @@
-﻿public class Package
+﻿using Delivery_System__Team_Enif_.Data.Entities;
+
+public class PackageViewModel
 {
+    public IEnumerable<Package> Packages { get; set; }
     public int Id { get; set; }
     public string SenderName { get; set; }
     public string RecipientName { get; set; }

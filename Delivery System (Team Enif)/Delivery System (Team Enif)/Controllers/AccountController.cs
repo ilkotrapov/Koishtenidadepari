@@ -102,7 +102,7 @@ namespace Delivery_System__Team_Enif_.Controllers
         [HttpGet]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
-            if (userId == null || token == null)
+             if (userId == null || token == null)
             {
                 return BadRequest("A token and user ID must be provided for email confirmation.");
             }

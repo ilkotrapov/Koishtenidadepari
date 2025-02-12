@@ -1,33 +1,35 @@
 ﻿@model LoginViewModel
 @{
-    ViewData["Title"] = "Вход";
+    ViewData["Title"] = "Login";
 }
 
-<h1>Вход</h1>
+<div class="delivery-form">
+    <h1>Login</h1>
 
-<form method="post">
-    <div class="form-group">
-        <label asp-for="Email" class="control-label"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <label asp-for="Password" class="control-label"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="form-group">
-        <div class="form-check">
-            <input type="checkbox" asp-for="RememberMe" class="form-check-input" />
-            <label class="form-check-label" for="RememberMe">Запомни ме</label>
+    <form method="post">
+        <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
         </div>
+
+        <div class="form-group">
+            <label asp-for="Password" class="control-label"></label>
+            <input asp-for="Password" class="form-control" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <div class="form-group" style="text-align:left;">
+            <div class="form-check">
+                <input type="checkbox" asp-for="RememberMe" class="form-check-input" />
+                <label class="form-check-label" for="RememberMe">Remember me</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Log in</button>
+    </form>
+
+    <div>
+        <p>Don't have an account? <a href="/Account/Register">Sign in</a></p>
     </div>
-
-    <button type="submit" class="btn btn-primary">Влезте</button>
-</form>
-
-<div>
-    <p>Нямате акаунт? <a href="/Account/Register">Регистрирайте се тук</a></p>
 </div>

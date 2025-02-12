@@ -17,7 +17,12 @@ namespace Delivery_System__Team_Enif_.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            return View(this.projectDbContext.Package.ToList());
+            List<Package> packages = projectDbContext.Packages.ToList();
+            PackageViewModel viewModel = new PackageViewModel
+            {
+                Packages = packages
+            };
+            return View(viewModel);
         }
 
         [HttpGet]

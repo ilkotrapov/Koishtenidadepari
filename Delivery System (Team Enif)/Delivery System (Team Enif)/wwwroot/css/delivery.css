@@ -62,7 +62,7 @@ header {
     text-align: center;
 }
 
-    .delivery .delivery-item {
+.delivery .delivery-item {
         display: inline-block;
         width: 250px;
         background-color: white;
@@ -71,7 +71,7 @@ header {
         margin: 15px;
         padding: 20px;
         transition: transform 0.3s ease;
-    }
+}
 
         .delivery .delivery-item:hover {
             transform: scale(1.05);
@@ -207,16 +207,16 @@ header {
     transition: background-color 0.3s ease;
 }
 
-    header:hover {
-        background-color: #6A0DAD;
-    }
+header:hover {
+    background-color: #6A0DAD;
+}
 
-    header .logo {
+header .logo {
         font-size: 28px;
         font-weight: bold;
         text-transform: uppercase;
         letter-spacing: 2px;
-    }
+}
 
 .nav-menu {
     display: flex;
@@ -252,8 +252,6 @@ header {
     padding: 30px;
     background-color: #D9D9D9;
     box-shadow: 0 1px 20px rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
-    border: 3px solid #6A0DAD;
     transition: box-shadow 0.3s ease, transform 0.3s ease;
 }
 
@@ -264,19 +262,38 @@ header {
     }
 
 
-.delivery-form {
-    background-color: #6c757dc4;
-    padding: 60px;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 700px;
-    opacity: 0;
-    transform: translateY(30px);
-    animation: fadeInUp 1s forwards 0.5s;
+/* Button hover effect with smooth transitions */
+.delivery-form button {
+    background-color: #757575; 
+    color: white; 
+    border: none;
+    margin: 20px;
+    padding: 12px 25px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-@keyframes fadeInUp {
+    .delivery-form button:hover {
+        background-color: #4B0082; 
+        transform: scale(1.08);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); 
+    }
+
+
+.delivery-form {
+    margin-top: 80px;
+    padding: 40px;
+    background: linear-gradient(135deg, #f0f0f0, #9e9e9e); 
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
+    animation: slideUp 1s ease-out;
+}
+
+
+@keyframes slideUp {
     0% {
         opacity: 0;
         transform: translateY(30px);
@@ -288,131 +305,123 @@ header {
     }
 }
 
-.delivery-form h2 {
-    font-size: 32px;
+@keyframes bounce 
+{
+    0%, 100% 
+    {
+        transform: translateY(0);
+    }
+
+    50% 
+    {
+        transform: translateY(-10px);
+    }
+}
+
+
+@media (max-width: 768px) 
+{
+    .form-row 
+    {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+ 
+    .nav-menu 
+    {
+        flex-direction: column;
+        align-items: center;
+        gap: 20px;
+    }
+
+        .nav-menu a 
+        {
+            font-size: 18px;
+            color: #fff;
+        }
+
+            .nav-menu a:hover {
+                color: #757575; 
+            }
+}
+
+
+.navbar-nav.ml-auto 
+{
+    margin-left: auto;
     font-weight: bold;
-    color: #2C3E50;
-    margin-bottom: 25px;
-    letter-spacing: 1px;
+    color: #9c4dcc;
+    text-transform: uppercase;
+    font-size: 18px;
 }
 
-.form-row {
-    display: flex;
-    gap: 30px;
-    margin-bottom: 55px;
-    justify-content: space-between;
-    animation: fadeIn 1s ease-in-out;
+    .navbar-nav.ml-auto a:hover 
+    {
+        color: #6a1b9a;
+    }
+
+.form-group button:hover {
+    background-color: #4B0082; /* Lighter purple on hover */
+    transform: scale(1.08);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* More prominent shadow */
 }
 
-@keyframes fadeIn {
+/* Form Section */
+.form-group {
+    padding: 40px;
+    background: linear-gradient(135deg, #f0f0f0, #9e9e9e); /* Gradient background */
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Strong shadow */
+    animation: slideUp 1s ease-out;
+}
+
+/* Background gradient animation */
+@keyframes slideUp {
     0% {
         opacity: 0;
+        transform: translateY(30px);
     }
 
     100% {
         opacity: 1;
+        transform: translateY(0);
     }
 }
 
-.form-column {
-    flex: 1;
-    background-color: #F9F9F9;
-    padding: 65px;
-    border-radius: 18px;
-    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
-}
-
-    .form-column h3 {
-        font-size: 50px;
-        color: #34495E;
-        margin-bottom: 15px;
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
     }
 
-
-.delivery-form input,
-.delivery-form select,
-.delivery-form textarea {
-    width: 100%;
-    padding: 15px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-
-input::placeholder {
-    color: #bbb;
-    transition: color 0.3s ease;
-}
-
-input:focus::placeholder {
-    color: #6A0DAD;
-}
-
-
-.delivery-form input:focus,
-.delivery-form select:focus,
-.delivery-form textarea:focus {
-    border-color: #3498DB;
-    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
-}
-
-.delivery-form textarea {
-    resize: vertical;
-    min-height: 120px;
-}
-
-
-.delivery-form button {
-    width: 100%;
-    padding: 18px;
-    background-color: #3498DB;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-}
-
-   .delivery-form button:hover {
-        background-color: #2980B9;
-        transform: scale(1.05);
+    50% {
+        transform: translateY(-10px);
     }
+}
 
-
+/* Mobile Design Adjustments */
 @media (max-width: 768px) {
     .form-row {
         flex-direction: column;
+        gap: 15px;
     }
 
-    .delivery-form {
+    .form-group {
         padding: 30px;
-    }
-
-    header {
-        padding: 20px;
     }
 
     .nav-menu {
         flex-direction: column;
         align-items: center;
-        gap: 10px;
+        gap: 20px;
     }
 
         .nav-menu a {
-            font-size: 16px;
+            font-size: 18px;
+            color: #fff;
         }
 
-    .container {
-        width: 100%;
-    }
-}
-
-.navbar-nav.ml-auto {
-    margin-left: auto;
-    font-weight: bold; /* Make the text bold */
-    color: #007bff; /* Set the link color */
+            .nav-menu a:hover {
+                color: #757575; /* grey hover */
+            }
 }
