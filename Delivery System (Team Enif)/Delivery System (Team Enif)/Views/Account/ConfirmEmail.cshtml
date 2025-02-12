@@ -6,9 +6,13 @@
 
 @if (ViewData["Success"] != null)
 {
-    <p>@ViewData["Success"]</p>
+    <div class="alert alert-success">
+        <p>@ViewData["Success"]</p>
+    </div>
 }
 else
 {
-    <p>Error confirming your email.</p>
+    <div class="alert alert-danger">
+        <p>@ViewData["Success"]</p>
+    </div>
 }

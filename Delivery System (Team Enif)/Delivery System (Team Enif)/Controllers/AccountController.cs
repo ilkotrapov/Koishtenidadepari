@@ -1,8 +1,11 @@
-﻿using Delivery_System__Team_Enif_.Models;
+﻿using Delivery_System__Team_Enif_.Migrations;
+using System.Threading.Tasks;
+using Delivery_System__Team_Enif_.Models;
 using Delivery_System__Team_Enif_.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace Delivery_System__Team_Enif_.Controllers
 { 
@@ -114,7 +117,15 @@ namespace Delivery_System__Team_Enif_.Controllers
             }
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
-            return View(result.Succeeded ? "Thank you for confirming your email. You can now log in." : "There was a problem confirming your email. Please try again");
+            if (result.Succeeded)
+            {
+                ViewData["Success"] = "Thank you for confirming your email. You can now log in.";
+            }
+            else
+            {
+                ViewData["Error"] = "There was a problem confirming your email. Please try again";
+            }
+            return View();
         }
 
         public async Task<IActionResult> PendingUsers()
