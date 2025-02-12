@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System;
+using Microsoft.EntityFrameworkCore;
 
 namespace Delivery_System__Team_Enif_.Controllers
 { 
-    
     public class AccountController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -119,7 +120,7 @@ namespace Delivery_System__Team_Enif_.Controllers
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (result.Succeeded)
             {
-                ViewData["Success"] = "Thank you for confirming your email. You can now log in.";
+                ViewData["Success"] = "Thank you for confirming your email. Wait your submission to be approved by admin.";
             }
             else
             {
@@ -128,29 +129,56 @@ namespace Delivery_System__Team_Enif_.Controllers
             return View();
         }
 
+        // GET: Admin/PendingUsers
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PendingUsers()
         {
-            // Retrieve all users who are pending approval
-            var users = _userManager.Users.Where(u => u.PendingApproval).ToList();
-            return View(users);
+            var pendingUsers = _userManager.Users.Where(u => u.ApprovalStatus == ApprovalStatus.Pending).ToList();
+            return View(pendingUsers);
         }
 
+        // POST: Admin/ApproveOrReject
         [HttpPost]
-        public async Task<IActionResult> ApproveUser(string userId)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ApproveOrReject(string userId, string action)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user != null)
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(action))
             {
-                // Set the user as approved
-                user.PendingApproval = false;
-                var result = await _userManager.UpdateAsync(user);
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("PendingUsers");
-                }
+                return BadRequest("Invalid data.");
             }
 
-            return BadRequest("Unable to approve user.");
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            if (action == "approve")
+            {
+                user.ApprovalStatus = ApprovalStatus.Approved;
+            }
+            else if (action == "reject")
+            {
+                user.ApprovalStatus = ApprovalStatus.Rejected;
+            }
+            else {
+                return BadRequest("Unable to update user status.");
+            }
+
+            await _userManager.UpdateAsync(user);
+
+            if (user.ApprovalStatus == ApprovalStatus.Approved)
+            {
+                user.ApprovalStatus = ApprovalStatus.Approved;
+                await _userManager.UpdateAsync(user);
+
+                // Send email notification
+                var subject = "Your Account has been Approved";
+                var message = "Your account has been approved by the admin. You can login";
+                await _emailSender.SendEmailAsync(user.Email, subject, message);                
+            }
+
+            return RedirectToAction("PendingUsers");
         }
 
         // Login action
@@ -170,7 +198,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user != null)
                 {
-                    if (user.PendingApproval) // Check if the user is pending approval
+                    if (user.ApprovalStatus == ApprovalStatus.Pending) // Check if the user is pending approval
                     {
                         ModelState.AddModelError(string.Empty, "Your account is pending approval by an administrator.");
                         return View(model);

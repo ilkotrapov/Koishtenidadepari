@@ -1,27 +1,38 @@
 ﻿@model IEnumerable<ApplicationUser>
+@{
+    ViewData["Title"] = "Pending users";
+}
 
-<h2>Pending User Approvals</h2>
+<div class="delivary-form">
+    <h2>Pending Users</h2>
 
-<table>
-    <thead>
-        <tr>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
+    <table class="table">
+        <thead>
             <tr>
-                <td>@user.Email</td>
-                <td>
-                    <form method="post" asp-action="ApproveUser">
-                        <input type="hidden" name="userId" value="@user.Id" />
-                        <button type="submit">Approve</button>
-                    </form>
-                </td>
+                <th>User</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Actions</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>@user.ApprovalStatus</td>
+                    <td>
+                        <form method="post" action="@Url.Action("ApproveOrReject", "Account")">
+                            <input type="hidden" name="userId" value="@user.Id" />
+                            
+                            <button type="submit" class="btn btn-success" name="action" value="approve">Approve</button>
+                            <button type="submit" class="btn btn-danger" name="action" value="reject">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
 

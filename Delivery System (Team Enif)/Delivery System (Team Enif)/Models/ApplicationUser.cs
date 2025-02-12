@@ -2,9 +2,15 @@
 
 namespace Delivery_System__Team_Enif_.Models
 {
+    public enum ApprovalStatus
+    {
+        Pending,
+        Approved,
+        Rejected
+    }
+
     public class ApplicationUser : IdentityUser
     {
-        // Track whether the user is pending approval from an admin
-        public bool PendingApproval { get; set; } = true; // By default, users are pending approval
+        public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
     }
 }

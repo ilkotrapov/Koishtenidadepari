@@ -13,24 +13,37 @@
         </div>
 
         <div class="form-group">
-            <label asp-for="Password" class="control-label"></label>
+            <label asp-for="Password" class="control-label">Password</label>
             <input asp-for="Password" class="form-control" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
 
         <div class="form-group">
-            <label asp-for="ConfirmPassword" class="control-label"></label>
+            <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
             <input asp-for="ConfirmPassword" class="form-control" />
             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
         </div>
 
         <div class="form-group">
-            <label for="Role">Select Role</label>
-            <select asp-for="Role" class="form-control">
-                <option value="User">User</option>
-                <option value="Courier">Courier</option>
-                <option value="Office assistant">Office assistant</option>
-            </select>
+            <label>Select Role</label>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Role" id="roleUser" value="User" asp-for="Role" checked />
+                <label class="form-check-label" for="roleUser">
+                    User
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Role" id="roleCourier" value="Courier" asp-for="Role" />
+                <label class="form-check-label" for="roleCourier">
+                    Courier
+                </label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="Role" id="roleOfficeAssistant" value="Office assistant" asp-for="Role" />
+                <label class="form-check-label" for="roleOfficeAssistant">
+                    Office Assistant
+                </label>
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary">Sign in</button>

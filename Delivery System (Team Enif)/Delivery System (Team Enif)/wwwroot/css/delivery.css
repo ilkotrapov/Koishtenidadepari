@@ -425,3 +425,14 @@ header .logo {
                 color: #757575; /* grey hover */
             }
 }
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+/* Red for Reject */
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
