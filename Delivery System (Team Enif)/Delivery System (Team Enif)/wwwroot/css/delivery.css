@@ -1,26 +1,26 @@
 ﻿
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #D9D9D9; 
-    color: #333; 
+    background-color: #D9D9D9;
+    color: #333;
     margin: 0;
     padding: 0;
 }
 
 header {
-    background-color: #4B0082; 
+    background-color: #4B0082;
     color: white;
     padding: 15px 30px;
     text-align: center;
     transition: background-color 0.3s ease;
 }
 
-header:hover {
-        background-color: #6A0DAD; 
-}
+    header:hover {
+        background-color: #6A0DAD;
+    }
 
 .btn {
-    background-color: #4B0082; 
+    background-color: #4B0082;
     color: white;
     padding: 10px 20px;
     border: none;
@@ -30,10 +30,10 @@ header:hover {
     transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
-.btn:hover {
+    .btn:hover {
         transform: scale(1.1);
-        background-color: #6A0DAD; 
-}
+        background-color: #6A0DAD;
+    }
 
 .nav-menu {
     display: flex;
@@ -42,22 +42,22 @@ header:hover {
     padding: 10px;
 }
 
-.nav-menu a {
+    .nav-menu a {
         color: white;
         text-decoration: none;
         padding: 10px 20px;
         text-transform: uppercase;
-}
+    }
 
         .nav-menu a:hover {
-            background-color: #6A0DAD; 
+            background-color: #6A0DAD;
             border-radius: 5px;
         }
 
 
 
 .delivery {
-    background-color: #D9D9D9; 
+    background-color: #D9D9D9;
     padding: 40px;
     text-align: center;
 }
@@ -65,7 +65,7 @@ header:hover {
     .delivery .delivery-item {
         display: inline-block;
         width: 250px;
-        background-color: white; 
+        background-color: white;
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         margin: 15px;
@@ -79,7 +79,7 @@ header:hover {
 
 
 .home {
-    background-color: #D9D9D9; 
+    background-color: #D9D9D9;
     padding: 40px 20px;
     text-align: center;
 }
@@ -87,41 +87,41 @@ header:hover {
     .home .feature {
         display: inline-block;
         width: 280px;
-        background-color: #ffffff; 
+        background-color: #ffffff;
         border-radius: 10px;
         padding: 25px;
         margin: 20px;
         transition: transform 0.3s ease;
     }
 
-.home .feature:hover {
-    transform: scale(1.05);
-}
+        .home .feature:hover {
+            transform: scale(1.05);
+        }
 
-.home img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 10px;
-}
+    .home img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
 
 .package:hover {
     transform: scale(1.05);
 }
 
 .packages {
-    background-color: #D9D9D9; 
+    background-color: #D9D9D9;
     padding: 40px;
     text-align: center;
 }
 
 .package {
-    background: #4B0082; 
+    background: #4B0082;
     border-radius: 10px;
     padding: 20px;
     margin: 15px;
     transition: transform 0.3s ease;
-    color: white; 
+    color: white;
 }
 
     .package img {
@@ -137,18 +137,18 @@ header:hover {
 
 
 .shared {
-    background-color: #D9D9D9; 
+    background-color: #D9D9D9;
     padding: 40px;
     text-align: center;
 }
 
     .shared .resource-item {
-        background: #4B0082; 
+        background: #4B0082;
         border-radius: 10px;
         padding: 20px;
         margin: 15px;
         transition: transform 0.3s ease;
-        color: white; 
+        color: white;
     }
 
         .shared .resource-item:hover {
@@ -207,16 +207,16 @@ header {
     transition: background-color 0.3s ease;
 }
 
-header:hover {
-    background-color: #6A0DAD;
-}
+    header:hover {
+        background-color: #6A0DAD;
+    }
 
-header .logo {
-    font-size: 28px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
+    header .logo {
+        font-size: 28px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
 
 .nav-menu {
     display: flex;
@@ -225,17 +225,17 @@ header .logo {
     padding-top: 10px;
 }
 
-.nav-menu a {
-    color: white;
-    text-decoration: none;
-    font-size: 18px;
-    text-transform: uppercase;
-    transition: color 0.3s ease;
-}
+    .nav-menu a {
+        color: white;
+        text-decoration: none;
+        font-size: 18px;
+        text-transform: uppercase;
+        transition: color 0.3s ease;
+    }
 
-.nav-menu a:hover {
-    color: #F4F4F9;
-}
+        .nav-menu a:hover {
+            color: #F4F4F9;
+        }
 
 
 .main-content {
@@ -259,8 +259,8 @@ header .logo {
 
 
     .container:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3); 
-        transform: scale(1.03); 
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        transform: scale(1.03);
     }
 
 
@@ -281,6 +281,7 @@ header .logo {
         opacity: 0;
         transform: translateY(30px);
     }
+
     100% {
         opacity: 1;
         transform: translateY(0);
@@ -307,6 +308,7 @@ header .logo {
     0% {
         opacity: 0;
     }
+
     100% {
         opacity: 1;
     }
@@ -320,11 +322,11 @@ header .logo {
     box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
-.form-column h3 {
-    font-size: 50px;
-    color: #34495E;
-    margin-bottom: 15px;
-}
+    .form-column h3 {
+        font-size: 50px;
+        color: #34495E;
+        margin-bottom: 15px;
+    }
 
 
 .delivery-form input,
@@ -375,10 +377,10 @@ input:focus::placeholder {
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
-.delivery-form button:hover {
-    background-color: #2980B9;
-    transform: scale(1.05);
-}
+   .delivery-form button:hover {
+        background-color: #2980B9;
+        transform: scale(1.05);
+    }
 
 
 @media (max-width: 768px) {
@@ -400,12 +402,17 @@ input:focus::placeholder {
         gap: 10px;
     }
 
-    .nav-menu a {
-        font-size: 16px;
-    }
+        .nav-menu a {
+            font-size: 16px;
+        }
 
     .container {
         width: 100%;
     }
 }
 
+.navbar-nav.ml-auto {
+    margin-left: auto;
+    font-weight: bold; /* Make the text bold */
+    color: #007bff; /* Set the link color */
+}

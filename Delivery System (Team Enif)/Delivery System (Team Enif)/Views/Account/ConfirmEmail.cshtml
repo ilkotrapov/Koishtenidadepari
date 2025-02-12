@@ -1,0 +1,14 @@
+﻿@{
+    ViewData["Title"] = "Confirm Email";
+}
+
+<h1>Email Confirmation</h1>
+
+@if (ViewData["Success"] != null)
+{
+    <p>@ViewData["Success"]</p>
+}
+else
+{
+    <p>Error confirming your email.</p>
+}

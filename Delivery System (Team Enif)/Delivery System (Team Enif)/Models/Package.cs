@@ -1,4 +1,4 @@
-﻿public class GPackage
+﻿public class Package
 {
     public int Id { get; set; }
     public string SenderName { get; set; }
