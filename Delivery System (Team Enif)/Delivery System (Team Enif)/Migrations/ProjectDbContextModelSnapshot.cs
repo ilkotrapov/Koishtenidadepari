@@ -24,11 +24,8 @@ namespace Delivery_System__Team_Enif_.Migrations
 
             modelBuilder.Entity("Courier", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<string>("CourierId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -38,7 +35,7 @@ namespace Delivery_System__Team_Enif_.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CourierId");
 
                     b.ToTable("Couriers");
                 });
@@ -51,8 +48,9 @@ namespace Delivery_System__Team_Enif_.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CourierId")
-                        .HasColumnType("int");
+                    b.Property<string>("CourierId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("DeliveryStatus")
                         .IsRequired()
@@ -105,7 +103,7 @@ namespace Delivery_System__Team_Enif_.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SizeR")
+                    b.Property<string>("Size")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -414,7 +412,9 @@ namespace Delivery_System__Team_Enif_.Migrations
                 {
                     b.HasOne("Courier", null)
                         .WithMany("Deliveries")
-                        .HasForeignKey("CourierId");
+                        .HasForeignKey("CourierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
