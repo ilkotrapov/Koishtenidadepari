@@ -347,8 +347,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.ToTable("Offices");
                 });
 
-<<<<<<< Updated upstream
-=======
             modelBuilder.Entity("User", b =>
                 {
                     b.Property<string>("Id")
@@ -412,7 +410,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.ToTable("Users");
                 });
 
->>>>>>> Stashed changes
             modelBuilder.Entity("Delivery", b =>
                 {
                     b.HasOne("Courier", null)
