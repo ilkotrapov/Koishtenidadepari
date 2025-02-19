@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Delivery_System__Team_Enif_.Models
 {
@@ -11,6 +12,8 @@ namespace Delivery_System__Team_Enif_.Models
 
     public class ApplicationUser : IdentityUser
     {
+        public string Name { get; set;}
+        public string Address {get; set;}
         public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
     }
 }

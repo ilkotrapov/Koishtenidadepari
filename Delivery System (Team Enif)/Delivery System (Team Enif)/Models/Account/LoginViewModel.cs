@@ -1,14 +1,17 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-public class LoginViewModel
+namespace Delivery_System__Team_Enif_.Models.Account
 {
-    [Required]
-    [EmailAddress]
-    public string Email { get; set; }
+    public class LoginViewModel
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
 
-    [Required]
-    [DataType(DataType.Password)]
-    public string Password { get; set; }
+        [Required]
+        [DataType(DataType.Password)]
+        public string Password { get; set; }
 
-    public bool RememberMe { get; set; }
+        public bool RememberMe { get; set; }
+    }
 }

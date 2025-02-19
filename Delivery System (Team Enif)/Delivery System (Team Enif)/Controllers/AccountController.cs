@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System;
 using Microsoft.EntityFrameworkCore;
+using Delivery_System__Team_Enif_.Models.Account;
 
 namespace Delivery_System__Team_Enif_.Controllers
 { 
@@ -57,7 +58,13 @@ namespace Delivery_System__Team_Enif_.Controllers
                     return View(model);
                 }
 
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                var user = new ApplicationUser {
+                    UserName = model.Email, 
+                    Email = model.Email,
+                    Name = model.Name,
+                    PhoneNumber = model.Phone,
+                    Address = model.Address
+                };
                 var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
@@ -74,17 +81,17 @@ namespace Delivery_System__Team_Enif_.Controllers
                         return View(model);
                     }
                     
-                        // Generate the email confirmation token
-                        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                        var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token }, protocol: Request.Scheme);
+                    // Generate the email confirmation token
+                    var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, token = token }, protocol: Request.Scheme);
 
                         // Send confirmation email
-                        await _emailSender.SendEmailAsync(model.Email, "Confirm your email",
+                    await _emailSender.SendEmailAsync(model.Email, "Confirm your email",
                             $"Please confirm your account by <a href='{callbackUrl}'>clicking here</a>.");
 
-                        _logger.LogInformation("User registered successfully.");
+                    _logger.LogInformation("User registered successfully.");
 
-                        return RedirectToAction("RegistrationConfirmation");
+                    return RedirectToAction("RegistrationConfirmation");
                 }
 
                 foreach (var error in result.Errors)
@@ -230,5 +237,81 @@ namespace Delivery_System__Team_Enif_.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var applicationUser = user as ApplicationUser;
+            if (applicationUser != null)
+            {
+                var model = new ProfileViewModel
+                {
+                    Name = applicationUser.Name,
+                    Email = user.Email,
+                    Phone = user.PhoneNumber,
+                    Address = user.Address
+                };
+                return View(model);
+            } else
+            {
+                ModelState.AddModelError(string.Empty, "The user is not of the expected type.");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(ProfileViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.GetUserAsync(User);
+
+                if (user == null)
+                {
+                    return RedirectToAction("Login", "Account");
+                }
+
+                var emailExist = await _userManager.FindByEmailAsync(model.Email);
+                if (emailExist != null && emailExist.Id != user.Id)
+                {
+                    ModelState.AddModelError("Email", "Email is already in use by another account.");
+                }
+
+                var applicationUser = user as ApplicationUser;
+                applicationUser.Name = model.Name;
+                applicationUser.UserName = model.Email;
+                applicationUser.Email = model.Email;
+                applicationUser.PhoneNumber = model.Phone;
+                applicationUser.Address = model.Address;  // Assuming Address is a property in ApplicationUser
+
+                var result = await _userManager.UpdateAsync(applicationUser);
+
+                if (result.Succeeded)
+                {
+                    // Optionally, you can send a success message here
+                    TempData["SuccessMessage"] = "Profile updated successfully!";
+                    return RedirectToAction("EditProfile"); // Redirect to the same page or elsewhere
+                }
+                else
+                {
+                    // If there are errors, add them to ModelState
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
+            }
+
+            return View(model);
+        }
+
     }
 }

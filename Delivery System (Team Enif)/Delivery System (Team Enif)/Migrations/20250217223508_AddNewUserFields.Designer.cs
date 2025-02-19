@@ -4,6 +4,7 @@ using Delivery_System__Team_Enif_.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Delivery_System__Team_Enif_.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250217223508_AddNewUserFields")]
+    partial class AddNewUserFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -72,57 +75,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.ToTable("Deliveries");
                 });
 
-            modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.DeliveryOption", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DeliveryOptions");
-                });
-
-            modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.DeliveryStatus", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DeliveryStatuses");
-                });
-
-            modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.DeliveryType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DeliveryTypes");
-                });
-
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Package", b =>
                 {
                     b.Property<int>("Id")
@@ -134,14 +86,9 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.Property<DateTime>("DeliveryDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DeliveryOptionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DeliveryStatusId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DeliveryTypeId")
-                        .HasColumnType("int");
+                    b.Property<string>("DeliveryType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("RecipientAddress")
                         .IsRequired()
@@ -163,16 +110,14 @@ namespace Delivery_System__Team_Enif_.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("Weight")
                         .HasColumnType("float");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DeliveryOptionId");
-
-                    b.HasIndex("DeliveryStatusId");
-
-                    b.HasIndex("DeliveryTypeId");
 
                     b.ToTable("Package");
                 });
@@ -418,33 +363,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                         .HasForeignKey("CourierId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Package", b =>
-                {
-                    b.HasOne("Delivery_System__Team_Enif_.Data.Entities.DeliveryOption", "DeliveryOption")
-                        .WithMany()
-                        .HasForeignKey("DeliveryOptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Delivery_System__Team_Enif_.Data.Entities.DeliveryStatus", "DeliveryStatus")
-                        .WithMany()
-                        .HasForeignKey("DeliveryStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Delivery_System__Team_Enif_.Data.Entities.DeliveryType", "DeliveryType")
-                        .WithMany()
-                        .HasForeignKey("DeliveryTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("DeliveryOption");
-
-                    b.Navigation("DeliveryStatus");
-
-                    b.Navigation("DeliveryType");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -1,8 +1,7 @@
-﻿@using Delivery_System__Team_Enif_.Data.Entities
-@model Package
+﻿@model PackageViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Package";
 }
 
 <h4>New Package</h4>
@@ -26,14 +25,14 @@
                     </div>
                 </div>
                 <div class="form-column">
-                    <h3>Recipient Information</h3>
+                <h3>Recipient Information</h3>
                     <div class="form-group">
                         <label asp-for="RecipientName" class="control-label">Recipient Name</label>
                         <input asp-for="RecipientName" class="form-control" />
                         <span asp-validation-for="RecipientName" class="text-danger"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="RecipientAddress" class="control-label">Recipient Name</label>
+                        <label asp-for="RecipientAddress" class="control-label">Recipient Address</label>
                         <textarea asp-for="RecipientAddress" class="form-control" required></textarea>
                         <span asp-validation-for="RecipientAddress" class="text-danger"></span>
                     </div>
@@ -49,22 +48,16 @@
                 <input asp-for="Size" class="form-control" />
                 <span asp-validation-for="Size" class="text-danger"></span>
             </div>
+            
             <div class="form-group">
-                <label asp-for="DeliveryType" class="control-label">Delivery Type</label>
-                <select asp-for="DeliveryType" class="form-control">
-                    <option value="standard">Standard</option>
-                    <option value="express">Express</option>
-                </select>
-                <span asp-validation-for="DeliveryType" class="text-danger"></span>
+                <label asp-for="DeliveryOptionId" class="control-label">Delivery Option</label>
+                @Html.DropDownListFor(m => m.DeliveryOptionId, new SelectList(Model.DeliveryOptions, "Value", "Text", Model.DeliveryOptionId), DeliveryOptionEnum.PickUp_DropOffLocalOffice)
+                <span asp-validation-for="DeliveryOptionId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Status" class="control-label">Delivery Status</label>
-                <select asp-for="Status" class="form-control">
-                    <option value="pending">Pending</option>
-                    <option value="shipped">Shipped</option>
-                    <option value="delivered">Delivered</option>
-                </select>
-                <span asp-validation-for="Status" class="text-danger"></span>
+                <label asp-for="DeliveryTypeId" class="control-label">Delivery Type</label>
+                @Html.DropDownListFor(m => m.DeliveryTypeId, new SelectList(Model.DeliveryTypes, "Value", "Text", Model.DeliveryTypeId), DeliveryTypeEnum.Standard)
+                <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="DeliveryDate" class="control-label">Delivery Date</label>

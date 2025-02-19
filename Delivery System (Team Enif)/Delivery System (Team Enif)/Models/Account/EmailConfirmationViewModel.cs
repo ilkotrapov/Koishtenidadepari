@@ -1,6 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-public class EmailConfirmationViewModel
+﻿namespace Delivery_System__Team_Enif_.Models.Account
 {
-    public string UserId { get; set; }
-    public string Token { get; set; }
+    public class EmailConfirmationViewModel
+    {
+        public string UserId { get; set; }
+        public string Token { get; set; }
+    }
 }

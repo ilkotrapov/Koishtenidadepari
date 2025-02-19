@@ -15,6 +15,11 @@ namespace Delivery_System__Team_Enif_.Data
         public DbSet<Package> Package { get; set; }
         
         public DbSet<Package> Packages { get; set; }
+
+        public DbSet<DeliveryType> DeliveryTypes { get; set; }
+        public DbSet<DeliveryStatus> DeliveryStatuses { get; set; }
+
+        public DbSet<DeliveryOption> DeliveryOptions { get; set; }
         public DbSet<Delivery> Deliveries { get; set; }
         public DbSet<Office> Offices { get; set; }
         public DbSet<Courier> Couriers { get; set; }    

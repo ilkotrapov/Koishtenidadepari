@@ -1,72 +1,73 @@
-﻿@model PackageViewModel
+﻿@using Delivery_System__Team_Enif_.Models
+@model PackageViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Package Details";
 }
 
-<h1>Details</h1>
+<div class="package">
+    <h4 class="display-4 text-center text-primary">Package Details</h4>
+    <hr class="my-4" />
 
-<div>
-    <h4>Package</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SenderName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SenderName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RecipientName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RecipientName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.SenderAddress)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.SenderAddress)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RecipientAddress)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RecipientAddress)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Weight)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Weight)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Size)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Size)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeliveryType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeliveryType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DeliveryDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DeliveryDate)
-        </dd>
-    </dl>
+    <table class="table table-hover table-striped table-bordered shadow-lg">
+        <thead>
+            <tr>
+                <th class="col-sm-2">Field</th>
+                <th class="col-sm-10">Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.SenderName)</strong></td>
+                <td>@Html.DisplayFor(model => model.SenderName)</td>
+            </tr>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.RecipientName)</strong></td>
+                <td>@Html.DisplayFor(model => model.RecipientName)</td>
+            </tr>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.SenderAddress)</strong></td>
+                <td>@Html.DisplayFor(model => model.SenderAddress)</td>
+            </tr>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.RecipientAddress)</strong></td>
+                <td>@Html.DisplayFor(model => model.RecipientAddress)</td>
+            </tr>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.Weight)</strong></td>
+                <td>@Html.DisplayFor(model => model.Weight)</td>
+            </tr>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.Size)</strong></td>
+                <td>@Html.DisplayFor(model => model.Size)</td>
+            </tr>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.DeliveryOptionSelected)</strong></td>
+                <td>@Html.DisplayFor(model => model.DeliveryOptionSelected)</td>
+            </tr>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.DeliveryTypeSelected)</strong></td>
+                <td>@Html.DisplayFor(model => model.DeliveryTypeSelected)</td>
+            </tr>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.DeliveryStatusSelected)</strong></td>
+                <td>@Html.DisplayFor(model => model.DeliveryStatusSelected)</td>
+            </tr>
+            <tr>
+                <td><strong>@Html.DisplayNameFor(model => model.DeliveryDate)</strong></td>
+                <td>@Html.DisplayFor(model => model.DeliveryDate)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="text-center mt-4">
+        <a asp-controller="Package" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg">
+            <i class="fas fa-edit"></i> Edit Package
+        </a>
+
+        <a asp-controller="Package" asp-action="Index" class="btn btn-secondary btn-lg ml-3">
+            <i class="fas fa-list"></i> Back to List
+        </a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+

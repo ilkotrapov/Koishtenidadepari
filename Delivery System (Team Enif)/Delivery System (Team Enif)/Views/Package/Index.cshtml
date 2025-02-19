@@ -2,6 +2,8 @@
 
 @{
     ViewData["Title"] = "Packages";
+    var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
 <div class="delivery-form">
@@ -19,11 +21,15 @@
                 <th>
                     @Html.DisplayNameFor(model => model.RecipientName)
                 </th>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.DeliveryOption)
+                </th>
                 <th>
                     @Html.DisplayNameFor(model => model.DeliveryType)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.Status)
+                    @Html.DisplayNameFor(model => model.DeliveryStatus)
                 </th>
                 <th>
                     @Html.DisplayNameFor(model => model.DeliveryDate)
@@ -41,17 +47,20 @@
                     @Html.DisplayFor(modelItem => item.RecipientName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryType)
+                    @Html.DisplayFor(modelItem => item.DeliveryOption.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Status)
+                    @Html.DisplayFor(modelItem => item.DeliveryType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeliveryStatus.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.DeliveryDate)
                 </td>
                 <td>                    
                         <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                        @if (item.Status == "pending")
+                        @if (item.DeliveryStatusId == (int)DeliveryStatusEnum.Pending && (isAdmin || isOfficeAssistant) )
                         {
                             <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
                             <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>

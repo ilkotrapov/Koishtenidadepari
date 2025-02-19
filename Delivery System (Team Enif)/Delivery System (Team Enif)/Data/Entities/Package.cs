@@ -8,8 +8,12 @@
         public string RecipientAddress { get; set; }
         public double Weight { get; set; }
         public string Size { get; set; }
-        public string DeliveryType { get; set; } // Standard, Express, etc.
-        public string Status { get; set; } // In Transit, Delivered, etc.
+        public int DeliveryOptionId { get; set; }
+        public DeliveryOption DeliveryOption { get; set; }
+        public int DeliveryTypeId { get; set; }
+        public DeliveryType DeliveryType { get; set; }
+        public int DeliveryStatusId { get; set; }
+        public DeliveryStatus DeliveryStatus { get; set; } 
         public DateTime DeliveryDate { get; set; } 
     }
 }
