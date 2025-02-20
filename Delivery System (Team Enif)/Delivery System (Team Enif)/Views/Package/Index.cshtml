@@ -6,68 +6,79 @@
     var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
-<div class="delivery-form">
-    <h1>Packages</h1>
+@if (isAdmin || isOfficeAssistant)
+{
+    <div class="container mt-4">
+        <div class="text-center mb-4">
+            <a asp-action="Create" class="btn btn-lg btn-primary btn-grey">
+                <i class="fas fa-plus"></i>New Package
+            </a>
+        </div>
+        <table class="table table-hover table-striped table-bordered shadow-sm">
+            <thead class="thead-light">
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.SenderName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.RecipientName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.DeliveryOption)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.DeliveryType)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.DeliveryStatus)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.DeliveryDate)
+                    </th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in this.Model.Packages)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.SenderName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.RecipientName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.DeliveryOption.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.DeliveryType.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.DeliveryStatus.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.DeliveryDate)
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                                Details
+                            </a>
 
-    <div>
-        <a asp-action="Create" class="btn">New Package</a>
+                            @if (item.DeliveryStatusId == (int)DeliveryStatusEnum.Pending && (isAdmin || isOfficeAssistant))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
+                                    Edit
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                                    Delete
+                                </a>
+                            }
+
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
     </div>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.SenderName)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.RecipientName)
-                </th>
-
-                <th>
-                    @Html.DisplayNameFor(model => model.DeliveryOption)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.DeliveryType)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.DeliveryStatus)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.DeliveryDate)
-                </th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var item in this.Model.Packages) {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SenderName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.RecipientName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryOption.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryType.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryStatus.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryDate)
-                </td>
-                <td>                    
-                        <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                        @if (item.DeliveryStatusId == (int)DeliveryStatusEnum.Pending && (isAdmin || isOfficeAssistant) )
-                        {
-                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-                        }
-				</td>
-			</tr>
-        }
-        </tbody>
-    </table>
-</div>
+}

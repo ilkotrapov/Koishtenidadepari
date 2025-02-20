@@ -8,74 +8,83 @@
 
 @if (isAdmin || isOfficeAssistant)
 {
-    <h1>Edit</h1>
-
-    <h4>Package</h4>
-    <hr />
-    <div class="row">
-        <div class="col-md-4">
-            <form class="delivery-form" asp-controller="Package" asp-action="Edit" asp-action="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="Id" />
-                <div class="form-group">
-                    <label asp-for="SenderName" class="control-label"></label>
-                    <input asp-for="SenderName" class="form-control" />
-                    <span asp-validation-for="SenderName" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="RecipientName" class="control-label"></label>
-                    <input asp-for="RecipientName" class="form-control" />
-                    <span asp-validation-for="RecipientName" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="SenderAddress" class="control-label"></label>
-                    <input asp-for="SenderAddress" class="form-control" />
-                    <span asp-validation-for="SenderAddress" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="RecipientAddress" class="control-label"></label>
-                    <input asp-for="RecipientAddress" class="form-control" />
-                    <span asp-validation-for="RecipientAddress" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Weight" class="control-label"></label>
-                    <input asp-for="Weight" class="form-control" />
-                    <span asp-validation-for="Weight" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Size" class="control-label"></label>
-                    <input asp-for="Size" class="form-control" />
-                    <span asp-validation-for="Size" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="DeliveryOptionId" class="control-label" />
-                    @Html.DropDownListFor(m => m.DeliveryOptionId, new SelectList(Model.DeliveryOptions, "Value", "Text", Model.DeliveryOptionId), new { @class = "form-control" })
-                    <span asp-validation-for="DeliveryOptionId" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="DeliveryTypeId" class="control-label"/>
-                    @Html.DropDownListFor(m => m.DeliveryTypeId, new SelectList(Model.DeliveryTypes, "Value", "Text", Model.DeliveryTypeId), new { @class = "form-control" })
-                    <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="DeliveryStatusId" class="control-label"/>
-                    @Html.DropDownListFor(m => m.DeliveryStatusId, new SelectList(Model.DeliveryStatuses, "Value", "Text", Model.DeliveryStatusId), new { @disabled = "disabled", @class = "form-control" })
-                    <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <label asp-for="DeliveryDate" class="control-label"></label>
-                    <input asp-for="DeliveryDate" class="form-control" />
-                    <span asp-validation-for="DeliveryDate" class="text-danger"></span>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Save" class="btn btn-primary" />
-                </div>
-            </form>
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h4 class="display-4 text-center text-primary">Edit Package</h4>
         </div>
-    </div>
+   
+        <div class="row card-body">
+            <div class="col-md-8 offset-md-2">
+                <form asp-controller="Package" asp-action="Edit" asp-action="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <input type="hidden" asp-for="Id" />
+                    <div class="form-group">
+                        @Html.DropDownListFor(m => m.DeliveryStatusId, new SelectList(Model.DeliveryStatuses, "Value", "Text", Model.DeliveryStatusId), new { @disabled = "disabled", @class = "form-control" })
+                        <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
+                    </div>
 
-    <div>
-        <a asp-action="Index">Back to List</a>
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label asp-for="SenderName" class="control-label"></label>
+                            <input asp-for="SenderName" class="form-control" />
+                            <span asp-validation-for="SenderName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="SenderAddress" class="control-label"></label>
+                            <input asp-for="SenderAddress" class="form-control" required />
+                            <span asp-validation-for="SenderAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label asp-for="RecipientName" class="control-label"></label>
+                            <input asp-for="RecipientName" class="form-control" />
+                            <span asp-validation-for="RecipientName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="RecipientAddress" class="control-label"></label>
+                            <input asp-for="RecipientAddress" class="form-control" required />
+                            <span asp-validation-for="RecipientAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Weight" class="control-label">Package Weight (kg)</label>
+                        <input asp-for="Weight" class="form-control" required />
+                        <span asp-validation-for="Weight" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Size" class="control-label">Package Size (cm³)</label>
+                        <input asp-for="Size" class="form-control" required />
+                        <span asp-validation-for="Size" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="DeliveryOptionId" class="control-label" >Delivery Option</label>
+                        @Html.DropDownListFor(m => m.DeliveryOptionId, new SelectList(Model.DeliveryOptions, "Value", "Text", Model.DeliveryOptionId), new { @class = "form-control" })
+                        <span asp-validation-for="DeliveryOptionId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DeliveryTypeId" class="control-label" >Delivery Type</label>
+                        @Html.DropDownListFor(m => m.DeliveryTypeId, new SelectList(Model.DeliveryTypes, "Value", "Text", Model.DeliveryTypeId), new { @class = "form-control" })
+                        <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="DeliveryDate" class="control-label"></label>
+                        <input asp-for="DeliveryDate" class="form-control" />
+                        <span asp-validation-for="DeliveryDate" class="text-danger"></span>
+                    </div>
+
+                    <div class="card-footer text-center">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-list"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 }
 

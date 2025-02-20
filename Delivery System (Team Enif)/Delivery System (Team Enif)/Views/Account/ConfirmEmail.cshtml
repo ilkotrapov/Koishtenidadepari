@@ -2,17 +2,23 @@
     ViewData["Title"] = "Confirm Email";
 }
 
-<h1>Email Confirmation</h1>
-
-@if (ViewData["Success"] != null)
-{
-    <div class="alert alert-success">
-        <p>@ViewData["Success"]</p>
+<div class="card mb-4 shadow-sm">
+    <div class="card-header">
+        <h4 class="display-4 text-center text-primary">Email Confirmation</h4>
     </div>
-}
-else
-{
-    <div class="alert alert-danger">
-        <p>@ViewData["Success"]</p>
+    
+    <div class="row card-body">
+        @if (ViewData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                <p>@ViewData["Success"]</p>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-danger">
+                <p>@ViewData["Error"]</p>
+            </div>
+        }
     </div>
-}
+</div>

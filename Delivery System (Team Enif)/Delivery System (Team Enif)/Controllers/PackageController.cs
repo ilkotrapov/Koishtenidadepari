@@ -249,8 +249,7 @@ namespace Delivery_System__Team_Enif_.Controllers
         }
 
 
-        // GET: Packages/Delete/5
-
+        // GET: Packages/Delete/
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)

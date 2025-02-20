@@ -2,72 +2,71 @@
 @model PackageViewModel
 
 @{
-    ViewData["Title"] = "Package Details";
+    ViewData["Title"] = "Package Information";
 }
 
-<div class="package">
-    <h4 class="display-4 text-center text-primary">Package Details</h4>
-    <hr class="my-4" />
-
-    <table class="table table-hover table-striped table-bordered shadow-lg">
-        <thead>
-            <tr>
-                <th class="col-sm-2">Field</th>
-                <th class="col-sm-10">Details</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.SenderName)</strong></td>
-                <td>@Html.DisplayFor(model => model.SenderName)</td>
-            </tr>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.RecipientName)</strong></td>
-                <td>@Html.DisplayFor(model => model.RecipientName)</td>
-            </tr>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.SenderAddress)</strong></td>
-                <td>@Html.DisplayFor(model => model.SenderAddress)</td>
-            </tr>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.RecipientAddress)</strong></td>
-                <td>@Html.DisplayFor(model => model.RecipientAddress)</td>
-            </tr>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.Weight)</strong></td>
-                <td>@Html.DisplayFor(model => model.Weight)</td>
-            </tr>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.Size)</strong></td>
-                <td>@Html.DisplayFor(model => model.Size)</td>
-            </tr>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.DeliveryOptionSelected)</strong></td>
-                <td>@Html.DisplayFor(model => model.DeliveryOptionSelected)</td>
-            </tr>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.DeliveryTypeSelected)</strong></td>
-                <td>@Html.DisplayFor(model => model.DeliveryTypeSelected)</td>
-            </tr>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.DeliveryStatusSelected)</strong></td>
-                <td>@Html.DisplayFor(model => model.DeliveryStatusSelected)</td>
-            </tr>
-            <tr>
-                <td><strong>@Html.DisplayNameFor(model => model.DeliveryDate)</strong></td>
-                <td>@Html.DisplayFor(model => model.DeliveryDate)</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="text-center mt-4">
-        <a asp-controller="Package" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-lg">
-            <i class="fas fa-edit"></i> Edit Package
-        </a>
-
-        <a asp-controller="Package" asp-action="Index" class="btn btn-secondary btn-lg ml-3">
-            <i class="fas fa-list"></i> Back to List
-        </a>
+<div class="card mb-4 shadow-sm">
+    <div class="card-header">
+        <h4 class="display-4 text-center text-primary">Package Information</h4>
     </div>
+
+    <div class="card-body">
+            <table class="table table-hover table-striped table-bordered shadow-lg">
+                <tbody>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.SenderName)</strong></td>
+                        <td>@Html.DisplayFor(model => model.SenderName)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.SenderAddress)</strong></td>
+                        <td>@Html.DisplayFor(model => model.SenderAddress)</td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.RecipientName)</strong></td>
+                        <td>@Html.DisplayFor(model => model.RecipientName)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.RecipientAddress)</strong></td>
+                        <td>@Html.DisplayFor(model => model.RecipientAddress)</td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.Weight)</strong></td>
+                        <td>@Html.DisplayFor(model => model.Weight)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.Size)</strong></td>
+                        <td>@Html.DisplayFor(model => model.Size)</td>
+                    </tr>
+
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.DeliveryOptionSelected)</strong></td>
+                        <td>@Html.DisplayFor(model => model.DeliveryOptionSelected)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.DeliveryTypeSelected)</strong></td>
+                        <td>@Html.DisplayFor(model => model.DeliveryTypeSelected)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.DeliveryStatusSelected)</strong></td>
+                        <td>@Html.DisplayFor(model => model.DeliveryStatusSelected)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.DeliveryDate)</strong></td>
+                        <td>@Html.DisplayFor(model => model.DeliveryDate)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card-footer text-center">
+            <a asp-controller="Package" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit Package
+             </a>
+            <a asp-controller="Package" asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-list"></i> Back
+            </a>
+        </div>
 </div>
 

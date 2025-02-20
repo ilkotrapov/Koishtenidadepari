@@ -3,81 +3,89 @@
 @{
     ViewData["Title"] = "Sign in";
 }
-<div class="delivery-form">
-    <h1>Sign in</h1>
 
-    <form method="post">
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="alert alert-danger">
-                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+<div class="card mb-4 shadow-sm">
+    <div class="card-header">
+        <h4 class="display-4 text-center text-primary">Registration</h4>
+    </div>
+
+    <div class="row card-body">
+        <div class="col-md-8 offset-md-2">
+            <form method="post">
+                @if (!ViewData.ModelState.IsValid)
                 {
-                    <p>@error.ErrorMessage</p>
+                    <div class="alert alert-danger">
+                        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <p>@error.ErrorMessage</p>
+                        }
+                    </div>
                 }
-            </div>
-        }
-        <div class="form-group">
-            <label asp-for="Name" class="control-label">Name</label>
-            <input asp-for="Name" class="form-control" required />
-            <span asp-validation-for="Name" class="text-danger"></span>
+
+                <div class="form-group">
+                    <label asp-for="Name" class="control-label" >Name</label>
+                    <input asp-for="Name" class="form-control" required />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label">Email</label>
+                    <input asp-for="Email" class="form-control" required />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Phone" class="control-label">Phone Number</label>
+                    <input asp-for="Phone" class="form-control" required />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Address" class="control-label" >Address</label>
+                    <input asp-for="Address" class="form-control" required />
+                    <span asp-validation-for="Address" class="text-danger" ></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password" class="control-label">Password</label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="form-group" style="text-align: left;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="Role" id="roleUser" value="User" asp-for="Role" checked />
+                        <label class="form-check-label" for="roleUser">
+                            User
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="Role" id="roleCourier" value="Courier" asp-for="Role" />
+                        <label class="form-check-label" for="roleCourier">
+                            Courier
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="Role" id="roleOfficeAssistant" value="Office assistant" asp-for="Role" />
+                        <label class="form-check-label" for="roleOfficeAssistant">
+                            Office Assistant
+                        </label>
+                    </div>
+                </div>
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-primary">Sign in</button>
+                    <div>
+                        <p>
+                            You already have an account?
+                            <a href="/Account/Login">
+                                <i class="fas"></i>Log in
+                            </a>
+                         </p>
+                    </div>
+                </div>
+            </form>
         </div>
-
-        <div class="form-group">
-            <label asp-for="Email" class="control-label"></label>
-            <input asp-for="Email" class="form-control" required />
-            <span asp-validation-for="Email" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="Phone" class="control-label">Phone</label>
-            <input asp-for="Phone" class="form-control" required />
-            <span asp-validation-for="Phone" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="Address" class="control-label">Address</label>
-            <input asp-for="Address" class="form-control" />
-            <span asp-validation-for="Address" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="Password" class="control-label">Password</label>
-            <input asp-for="Password" class="form-control" />
-            <span asp-validation-for="Password" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label asp-for="ConfirmPassword" class="control-label">Confirm Password</label>
-            <input asp-for="ConfirmPassword" class="form-control" />
-            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-        </div>
-
-        <div class="form-group" style="text-align: left;">
-            <label>Role</label>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="Role" id="roleUser" value="User" asp-for="Role" checked />
-                <label class="form-check-label" for="roleUser">
-                    User
-                </label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="Role" id="roleCourier" value="Courier" asp-for="Role" />
-                <label class="form-check-label" for="roleCourier">
-                    Courier
-                </label>
-            </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="Role" id="roleOfficeAssistant" value="Office assistant" asp-for="Role" />
-                <label class="form-check-label" for="roleOfficeAssistant">
-                    Office Assistant
-                </label>
-            </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Sign in</button>
-    </form>
-
-    <div>
-        <p>Already have an account? <a href="/Account/Login">Log in</a></p>
     </div>
 </div>
