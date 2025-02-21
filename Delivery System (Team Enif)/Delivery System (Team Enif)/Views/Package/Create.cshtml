@@ -2,12 +2,97 @@
 
 @{
     ViewData["Title"] = "Create Package";
-    var isAdmin = User.IsInRole("Admin");
-    var isOfficeAssistant = User.IsInRole("Office assistant");
+    //var isAdmin = User.IsInRole("Admin");
+    //var isOfficeAssistant = User.IsInRole("Office assistant");
+    // if (user is Admin or Office assistant) removed.
+
+
+    /* <!-- Price Display -->
+    <div id="priceDisplay" style="display:none;">
+        <h4>Total Price: €<span id="totalPrice"></span></h4>
+
+        <!-- Stripe Card Element -->
+        <div id="card-element" style="margin: 20px 0;"></div>
+
+        <!-- Payment Options -->
+        <button id="payNowButton" class="btn btn-success" onclick="initiatePayment()">💳 Pay Now</button>
+        <button id="invoiceButton" class="btn btn-info" onclick="sendInvoice()">📧 Request Invoice</button>
+    </div>
+    */
+}
+  
+@{
+   /*  Payment js. Has to fix HTML logic.       
+    * 
+    * <script src="https://js.stripe.com/v3/"></script>
+    <script>
+    const stripe = Stripe("pk_test_51QoNsEAWoKegr6mtRVRle0aQNkZNn8opfkX8zJvQ4tBIC4yPXsUisYo5kLO5uJloC5geOv948B1XUUN7Chhpeyv6002AE0iPth"); // test publishable key
+    const elements = stripe.elements();
+    const cardElement = elements.create('card');
+    cardElement.mount('#card-element');
+
+    // Show modal when clicking Order Now
+    document.getElementById('orderButton').addEventListener('click', () => {
+    document.getElementById('paymentModal').style.display = 'block';
+    });
+
+    // Calculate price based on input
+        function calculatePrice() {
+        const length = parseFloat(document.getElementById('length').value);
+        const width = parseFloat(document.getElementById('width').value);
+        const height = parseFloat(document.getElementById('height').value);
+        const weight = parseFloat(document.getElementById('weight').value);
+
+        // Simple pricing formula
+        const basePrice = 10; // Base fee
+        const weightFee = weight * 5; // €2 per kg
+        const volumeFee = (length * width * height) / 2000; // €0.50 per 1000 cm³
+
+        const totalPrice = (basePrice + weightFee + volumeFee).toFixed(2);
+
+        document.getElementById('totalPrice').innerText = totalPrice;
+    document.getElementById('priceDisplay').style.display = 'block';
+        }
+
+        // Initiate Stripe Payment
+        async function initiatePayment() {
+        const amount = parseFloat(document.getElementById('totalPrice').innerText) * 100; // cents
+
+        const response = await fetch('/api/payment/create-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: amount })
+        });
+
+        const { sessionUrl } = await response.json();
+    window.location.href = sessionUrl; // Redirect to Stripe Checkout
+        }
+
+        // Send Invoice via Stripe API
+        async function sendInvoice() {
+        const email = prompt("Enter email for invoice:");
+            if (email) {
+                const response = await fetch('/api/payment/send-invoice', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email })
+            });
+
+            const result = await response.json();
+                if (result.success) {
+                alert(`Invoice sent to ${email}`);
+                } else {
+            alert("Invoice failed: " + result.message);
+     }
+     }
+     }
+    </script>
+    */
+
 }
 
-@if (isAdmin || isOfficeAssistant)
-{
+
+@{
     <div class="card mb-4 shadow-sm">
         <div class="card-header">
             <h4 class="display-4 text-center text-primary">New Package</h4>
@@ -99,7 +184,7 @@
             </div>
         </div>
     </div>
-}
+  }          
 
 @section Scripts {
     @{
