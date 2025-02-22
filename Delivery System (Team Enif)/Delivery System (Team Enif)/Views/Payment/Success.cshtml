@@ -1,0 +1,14 @@
+﻿@using Delivery_System__Team_Enif_.Data.Entities
+@model Delivery_System__Team_Enif_.Data.Entities.Package
+
+@{
+    ViewData["Title"] = "Payment Successful";
+}
+
+<div class="text-center">
+    <h1 class="display-4">✅ Payment Successful</h1>
+    <p>Your tracking ID: <strong>@Model.Id</strong></p>
+    <p>You can track your package using this ID at any time.</p>
+    <a href="/Package/Track/@Model.Id" class="btn btn-primary">Track Package Now</a>
+    <a href="/Package/Create" class="btn btn-secondary">Create New Package</a>
+</div>

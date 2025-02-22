@@ -1,0 +1,21 @@
+﻿@using Delivery_System__Team_Enif_.Data.Entities
+@model Delivery_System__Team_Enif_.Data.Entities.Package
+
+@{
+    ViewData["Title"] = "Track Package";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3>Tracking ID: @Model.Id</h3>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Current Status:</dt>
+            <p>Status: @Model.DeliveryStatus?.Name</p>
+
+            <dt class="col-sm-3">Estimated Delivery:</dt>
+            <dd class="col-sm-9">@Model.DeliveryDate.ToString("d")</dd>
+        </dl>
+    </div>
+</div>

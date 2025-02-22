@@ -11,6 +11,10 @@ namespace Delivery_System__Team_Enif_.Data
 {
     public class ProjectDbContext : IdentityDbContext<ApplicationUser, IdentityRole, string>
     {
+        public ProjectDbContext()
+        {
+        }
+
         public ProjectDbContext(DbContextOptions<ProjectDbContext> options) : base(options) { }
         public DbSet<Package> Package { get; set; }
         

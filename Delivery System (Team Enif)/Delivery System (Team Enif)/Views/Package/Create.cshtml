@@ -43,15 +43,32 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label asp-for="Weight" class="control-label">Package Weight (kg)</label>
-                        <input type="number" asp-for="Weight" class="form-control" required />
-                        <span asp-validation-for="Weight" class="text-danger"></span>
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label asp-for="Length" class="control-label"></label>
+                            <input type="number" asp-for="Length" class="form-control" id="Length" oninput="calculatePackageSize()" required />
+                            <span asp-validation-for="Length" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Width" class="control-label"></label>
+                            <input type="number" asp-for="Width" class="form-control" id="Width" oninput="calculatePackageSize()" required />
+                            <span asp-validation-for="Width" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Hight" class="control-label"></label>
+                            <input type="number" asp-for="Hight" class="form-control" id="Height" oninput="calculatePackageSize();" required />
+                            <span asp-validation-for="Hight" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="PackageSize" class="control-label"></label>
+                            <input type="number" asp-for="PackageSize" class="form-control" id="PackageSize" readonly />
+                        </div>
                     </div>
+
                     <div class="form-group">
-                        <label asp-for="Size" class="control-label">Package Size (cm³)</label>
-                        <input asp-for="Size" class="form-control" />
-                        <span asp-validation-for="Size" class="text-danger"></span>
+                        <label asp-for="Weight" class="control-label"></label>
+                        <input type="number" asp-for="Weight" class="form-control" id="Weight" required />
+                        <span asp-validation-for="Weight" class="text-danger"></span>
                     </div>
 
                     <div class="form-group">
@@ -67,13 +84,17 @@
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="DeliveryDate" class="control-label">Delivery Date</label>
-                        <input asp-for="DeliveryDate" class="form-control" />
+                        <label asp-for="DeliveryDate" class="control-label"></label>
+                        <input asp-for="DeliveryDate" class="form-control" required />
                         <span asp-validation-for="DeliveryDate" class="text-danger"></span>
                     </div>
 
+                    <!-- <input type="hidden" id="amountInCents" />
+                    <input type="hidden" id="packageId" value="@Model.Id" /> -->
+
                     <div class="card-footer text-center">
-                        <input type="submit" value="Create" class="btn btn-primary" />
+                        <!-- <h4>Total Price: €<span id="totalPrice">0.00</span></h4> -->
+                        <button type="submit" class="btn btn-success">Create Package & Proceed to Payment</button>
                         <a asp-action="Index" class="btn btn-secondary">
                             <i class="fas fa-list"></i>Cancel
                         </a>
@@ -85,6 +106,58 @@
 }
 
 @section Scripts {
+    <script>
+        function calculatePackageSize() {
+            const length = parseFloat(document.getElementById('Length').value) || 0;
+            const width = parseFloat(document.getElementById('Width').value) || 0;
+            const height = parseFloat(document.getElementById('Height').value) || 0;
+
+            const packageSize = length * width * height;
+            document.getElementById('PackageSize').value = packageSize.toFixed(2);
+        }
+
+        
+        async function fetchPrice() {
+            const length = parseFloat(document.getElementById('Length').value);
+            const width = parseFloat(document.getElementById('Width').value);
+            const height = parseFloat(document.getElementById('Height').value);
+            const weight = parseFloat(document.getElementById('Weight').value);
+
+            // Only calculate if all fields are filled
+            if (length && width && height && weight) {
+                try {
+                    const response = await fetch('/package/calculate-price', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ Length: length, Width: width, Hight: height, Weight: weight })
+                    });
+
+                    const result = await response.json();
+                    if (!response.ok) throw new Error(result.message || 'Failed to calculate price.');
+
+                    document.getElementById('totalPrice').innerText = result.totalPrice.toFixed(2);
+                    document.getElementById('amountInCents').value = result.amountInCents;
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        }
+
+        async function proceedToPayment() {
+            const amount = document.getElementById('amountInCents').value;
+            const packageId = document.getElementById('packageId').value;
+
+            if (!amount || amount <= 0 || !packageId) {
+                alert("Please enter valid package details and calculate the price first.");
+                return;
+            }
+
+            console.log("Proceeding to payment with:", { packageId, amount });
+
+            window.location.href = `/api/payment/process-payment?packageId=${packageId}&amount=${amount}`;
+        }
+    </script>
+
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }

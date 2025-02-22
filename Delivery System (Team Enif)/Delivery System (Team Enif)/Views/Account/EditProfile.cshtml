@@ -5,7 +5,7 @@
     var isAdmin = User.IsInRole("Admin");
 }
 
-if (!isAdmin)
+@if (!isAdmin)
 {
     <div class="card mb-4 shadow-sm">
         <div class="card-header">
@@ -13,7 +13,7 @@ if (!isAdmin)
         </div>
 
         <div>
-            @TempData["SuccessMessage"]
+            <h6 class="display-6 text-center text-info">@TempData["SuccessMessage"]</h6>
         </div>
 
         <div class="row card-body">
@@ -42,6 +42,9 @@ if (!isAdmin)
 
                     <div class="card-footer text-center">
                         <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">
+                            <i class="fas fa-list"></i>Cancel
+                        </a>
                     </div>
                 </form>
             </div>

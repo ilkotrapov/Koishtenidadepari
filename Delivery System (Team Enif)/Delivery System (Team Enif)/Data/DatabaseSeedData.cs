@@ -28,7 +28,7 @@
                     // Seed a default admin user
                     await SeedAdminUserAsync(userManager);
 
-                    await SeedDeliveryData(dbContext);
+                    SeedDeliveryData(dbContext);
                 }
             }
         }
@@ -74,7 +74,11 @@
             var user = await userManager.FindByEmailAsync("admin@admin.com");
             if (user == null)
             {
-                user = new ApplicationUser { UserName = "admin@admin.com", Email = "admin@admin.com" };
+                user = new ApplicationUser { 
+                    Name = "admin", 
+                    UserName = "admin@admin.com", 
+                    Email = "admin@admin.com"
+                };
                 var createUser = await userManager.CreateAsync(user, "Password123!");
 
                 if (createUser.Succeeded)
@@ -87,7 +91,7 @@
             }
         }
 
-        private static async Task SeedDeliveryData(ProjectDbContext dbContext)
+        private static void SeedDeliveryData(ProjectDbContext dbContext)
         {
             try
             {
@@ -126,10 +130,10 @@
 
                 dbContext.SaveChanges();
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 Console.WriteLine($"Error creating delivery data: {ex.Message}");
             }
-    }
+        }
     }
 }

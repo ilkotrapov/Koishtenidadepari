@@ -12,8 +12,8 @@ namespace Delivery_System__Team_Enif_.Models
 
     public class ApplicationUser : IdentityUser
     {
-        public string Name { get; set;}
-        public string Address {get; set;}
-        public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Pending;
+        public required string Name { get; set;}
+        public string? Address {get; set;}
+        public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Approved;
     }
 }
