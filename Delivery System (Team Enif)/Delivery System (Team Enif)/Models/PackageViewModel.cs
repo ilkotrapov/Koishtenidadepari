@@ -44,8 +44,29 @@ public class PackageViewModel
     [DisplayName("Recipient Address")]
     [Required(ErrorMessage = "The Recipient Address field is required.")]
     public string RecipientAddress { get; set; }
-    public double Weight { get; set; }
-    public string Size { get; set; }
+
+    [DisplayName("Length (cm)")]
+    [Required(ErrorMessage = "The Package Length field is required.")]
+    [Range(0, double.MaxValue, ErrorMessage = "The Package Length must be a positive number more than 0.")]
+    public decimal Length { get; set; } = 0;
+
+    [DisplayName("Width (cm)")]
+    [Required(ErrorMessage = "The Package Width field is required.")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "The Package Width must be a positive number more than 0.")]
+    public decimal Width { get; set; } = 0;
+
+    [DisplayName("Hight (cm)")]
+    [Required(ErrorMessage = "The Package Hight field is required.")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "The Package Hight must be a positive number more than 0.")]
+    public decimal Hight { get; set; } = 0;
+
+    [DisplayName("Package Size (cm³)")]
+    public decimal PackageSize => Length * Width * Hight;
+
+    [DisplayName("Weight")]
+    [Required(ErrorMessage = "The Package Weight field is required.")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "The Package Weight must be a positive number value more than 0")]
+    public decimal Weight { get; set; } = 0;
 
     [DisplayName("Delivery Option")]
     public int DeliveryOptionId { get; set; } = (int)DeliveryOptionEnum.PickUp_DropOffLocalOffice;
@@ -86,8 +107,9 @@ public class PackageViewModel
     [ValidateNever]
     public IEnumerable<SelectListItem> DeliveryStatuses { get; set; }
 
-    [Required(ErrorMessage = "The Delivery date field is required.")]
     [DisplayName("Delivery Date")]
+    [DataType(DataType.DateTime)]
+    [Required(ErrorMessage = "The Delivery date field is required.")]
     public DateTime DeliveryDate { get; set; }
 
 }
