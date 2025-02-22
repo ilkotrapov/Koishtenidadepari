@@ -8,17 +8,17 @@ namespace Delivery_System__Team_Enif_.Controllers
 {
     public class PackageController : Controller
     {
-        private readonly ProjectDbContext projectDbContext;
+        private readonly ProjectDbContext _projectDbContext;
 
         public PackageController(ProjectDbContext projectDbContext)
         {
-            this.projectDbContext = projectDbContext;
+            this._projectDbContext = projectDbContext;
         }
 
         [HttpGet]
         public IActionResult Index()
         {
-            List<Package> packages = projectDbContext.Packages
+            List<Package> packages = _projectDbContext.Packages
                 .Include(p => p.DeliveryOption)
                 .Include(p => p.DeliveryType)
                 .Include(p => p.DeliveryStatus)
@@ -61,7 +61,8 @@ namespace Delivery_System__Team_Enif_.Controllers
                                         Text = s.ToString(),
                                         Selected = s == DeliveryStatusEnum.Pending
                                     }
-                                    ).ToList()
+                                    ).ToList(),
+                DeliveryDate = DateTime.Now
             };
             return View(model);
         }
@@ -70,8 +71,8 @@ namespace Delivery_System__Team_Enif_.Controllers
         public IActionResult CreateConfirm(Package package)
         {
                 package.DeliveryStatusId = (int)DeliveryStatusEnum.Pending;
-                this.projectDbContext.Add(package);
-                this.projectDbContext.SaveChanges();
+                _projectDbContext.Add(package);
+                _projectDbContext.SaveChanges();
 
                 return RedirectToAction("Index");
         }
@@ -79,7 +80,7 @@ namespace Delivery_System__Team_Enif_.Controllers
         [HttpGet("track/{trackingNumber}")]
         public async Task<IActionResult> TrackPackage(int trackingNumber)
         {
-            var package = await projectDbContext.Packages.FirstOrDefaultAsync(p => p.Id == trackingNumber);
+            var package = await _projectDbContext.Packages.FirstOrDefaultAsync(p => p.Id == trackingNumber);
             if (package == null) return NotFound("Package not found.");
 
             return Ok(package);
@@ -88,14 +89,14 @@ namespace Delivery_System__Team_Enif_.Controllers
         [HttpPut("update/{id}")]
         public async Task<IActionResult> UpdatePackageStatus(int id, [FromBody] int newStatus)
         {
-            var package = await projectDbContext.Packages.FindAsync(id);
+            var package = await _projectDbContext.Packages.FindAsync(id);
             if (package == null) return NotFound();
 
             package.DeliveryStatusId = newStatus;
             try
             {
-                projectDbContext.Update(package);
-                await projectDbContext.SaveChangesAsync();
+                _projectDbContext.Update(package);
+                await _projectDbContext.SaveChangesAsync();
             }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -119,7 +120,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return NotFound("The provided package id is null");
             }
 
-            var package = await projectDbContext.Package
+            var package = await _projectDbContext.Package
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
             {
@@ -130,7 +131,13 @@ namespace Delivery_System__Team_Enif_.Controllers
             {
                 Id = package.Id,
                 SenderName = package.SenderName,
+                SenderAddress = package.SenderAddress,
                 RecipientName = package.RecipientName,
+                RecipientAddress = package.RecipientAddress,
+                Length = package.Length,
+                Width = package.Width,
+                Hight = package.Hight,
+                Weight = package.Weight,
                 DeliveryOptionSelected = (DeliveryOptionEnum)Enum.ToObject(typeof(DeliveryOptionEnum), package.DeliveryOptionId),
                 DeliveryTypeSelected = (DeliveryTypeEnum)Enum.ToObject(typeof(DeliveryTypeEnum), package.DeliveryTypeId),
                 DeliveryStatusSelected = (DeliveryStatusEnum)Enum.ToObject(typeof(DeliveryStatusEnum), package.DeliveryStatusId),
@@ -148,7 +155,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return NotFound("The provided package id is null");
             }
 
-            var package = await projectDbContext.Packages.FindAsync(id);
+            var package = await _projectDbContext.Packages.FindAsync(id);
             if (package == null)
             {
                 return NotFound("No package found with the provided package id");
@@ -156,7 +163,7 @@ namespace Delivery_System__Team_Enif_.Controllers
 
             if (package.DeliveryStatusId != (int)DeliveryStatusEnum.Pending)
             {
-                return BadRequest("The package ca not be edit!");
+                return BadRequest("The package is not editable!");
             }
 
             var deliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
@@ -193,8 +200,12 @@ namespace Delivery_System__Team_Enif_.Controllers
                 RecipientName = package.RecipientName,
                 SenderAddress = package.SenderAddress,
                 RecipientAddress = package.RecipientAddress,
+
+                Length = package.Length,
+                Width = package.Width,
+                Hight = package.Hight,
+
                 Weight = package.Weight,
-                Size = package.Size,
                 DeliveryOptionId = package.DeliveryOptionId,
                 DeliveryOptions = deliveryOptions,
                 DeliveryTypeId = package.DeliveryTypeId,
@@ -216,36 +227,37 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return View(viewModel);
             }
 
-            var package = await projectDbContext.Packages.FindAsync(viewModel.Id);
-                if (package == null)
-                {
-                    return NotFound("No package found to edit");
-                }
+            var package = await _projectDbContext.Packages.FindAsync(viewModel.Id);
+            if (package == null)
+            {
+                return NotFound("No package found to edit");
+            }
 
-                // Update package fields
-                package.SenderName = viewModel.SenderName;
-                package.RecipientName = viewModel.RecipientName;
-                package.SenderAddress = viewModel.SenderAddress;
-                package.RecipientAddress = viewModel.RecipientAddress;
-                package.Weight = viewModel.Weight;
-                package.Size = viewModel.Size;
+            package.SenderName = viewModel.SenderName;
+            package.RecipientName = viewModel.RecipientName;
+            package.SenderAddress = viewModel.SenderAddress;
+            package.RecipientAddress = viewModel.RecipientAddress;
+            package.Length = viewModel.Length;
+            package.Width = viewModel.Width;
+            package.Hight = viewModel.Hight;
+            package.Weight = viewModel.Weight;
 
-                var doe = projectDbContext.DeliveryOptions.FirstOrDefault(s => s.Id == viewModel.DeliveryOptionId);
-                if (doe != null)
-                {
-                    package.DeliveryOptionId = doe.Id;
-                }
+            var doe = _projectDbContext.DeliveryOptions.FirstOrDefault(s => s.Id == viewModel.DeliveryOptionId);
+            if (doe != null)
+            {
+                package.DeliveryOptionId = doe.Id;
+            }
 
-                var dte = projectDbContext.DeliveryOptions.FirstOrDefault(s => s.Id == viewModel.DeliveryTypeId);
-                if (dte != null)
-                {
-                    package.DeliveryTypeId = dte.Id;
-                }
+            var dte = _projectDbContext.DeliveryOptions.FirstOrDefault(s => s.Id == viewModel.DeliveryTypeId);
+            if (dte != null)
+            {
+                package.DeliveryTypeId = dte.Id;
+            }
 
             package.DeliveryDate = viewModel.DeliveryDate;
 
-                await projectDbContext.SaveChangesAsync();
-                return RedirectToAction("Index");
+            await _projectDbContext.SaveChangesAsync();
+            return RedirectToAction("Index");
         }
 
 
@@ -257,7 +269,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return NotFound("The provided package id is null");
             }
 
-            var package = await projectDbContext.Package
+            var package = await _projectDbContext.Package
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
             {
@@ -287,19 +299,19 @@ namespace Delivery_System__Team_Enif_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var package = await projectDbContext.Packages.FindAsync(id);
+            var package = await _projectDbContext.Packages.FindAsync(id);
             if (package != null)
             {
-                projectDbContext.Packages.Remove(package);
+                _projectDbContext.Packages.Remove(package);
             }
 
-            await projectDbContext.SaveChangesAsync();
+            await _projectDbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
         private bool PackageExists(int id)
         {
-            return projectDbContext.Packages.Any(e => e.Id == id);
+            return _projectDbContext.Packages.Any(e => e.Id == id);
         }
     }
 }

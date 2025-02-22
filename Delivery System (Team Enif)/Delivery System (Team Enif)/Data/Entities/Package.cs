@@ -2,18 +2,20 @@
 {
     public class Package : BaseEntity
     {
-        public string SenderName { get; set; }
-        public string RecipientName { get; set; }
-        public string SenderAddress { get; set; }
-        public string RecipientAddress { get; set; }
-        public double Weight { get; set; }
-        public string Size { get; set; }
+        public required string SenderName { get; set; }
+        public required string RecipientName { get; set; }
+        public required string SenderAddress { get; set; }
+        public required string RecipientAddress { get; set; }
+        public required decimal Length { get; set; }
+        public required decimal Width { get; set; }
+        public required decimal Hight { get; set; }
+        public required decimal Weight { get; set; }
         public int DeliveryOptionId { get; set; }
-        public DeliveryOption DeliveryOption { get; set; }
+        public required DeliveryOption DeliveryOption { get; set; }
         public int DeliveryTypeId { get; set; }
-        public DeliveryType DeliveryType { get; set; }
+        public required DeliveryType DeliveryType { get; set; }
         public int DeliveryStatusId { get; set; }
-        public DeliveryStatus DeliveryStatus { get; set; } 
-        public DateTime DeliveryDate { get; set; } 
+        public required DeliveryStatus DeliveryStatus { get; set; } 
+        public required DateTime DeliveryDate { get; set; } 
     }
 }

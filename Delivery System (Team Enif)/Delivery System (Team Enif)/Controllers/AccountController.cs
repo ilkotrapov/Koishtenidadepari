@@ -290,7 +290,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 applicationUser.UserName = model.Email;
                 applicationUser.Email = model.Email;
                 applicationUser.PhoneNumber = model.Phone;
-                applicationUser.Address = model.Address;  // Assuming Address is a property in ApplicationUser
+                applicationUser.Address = model.Address;
 
                 var result = await _userManager.UpdateAsync(applicationUser);
 
