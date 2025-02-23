@@ -14,6 +14,6 @@ namespace Delivery_System__Team_Enif_.Models
     {
         public required string Name { get; set;}
         public string? Address {get; set;}
-        public ApprovalStatus ApprovalStatus { get; set; } = ApprovalStatus.Approved;
+        public bool isActive { get; set; } = true;
     }
 }

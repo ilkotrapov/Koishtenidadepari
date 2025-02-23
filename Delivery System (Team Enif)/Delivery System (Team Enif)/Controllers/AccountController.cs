@@ -1,19 +1,17 @@
-﻿using Delivery_System__Team_Enif_.Migrations;
-using System.Threading.Tasks;
-using Delivery_System__Team_Enif_.Models;
+﻿using Delivery_System__Team_Enif_.Models;
 using Delivery_System__Team_Enif_.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
-using System;
-using Microsoft.EntityFrameworkCore;
 using Delivery_System__Team_Enif_.Models.Account;
+using Delivery_System__Team_Enif_.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Delivery_System__Team_Enif_.Controllers
 { 
     public class AccountController : Controller
     {
+        private readonly ProjectDbContext _projectDbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -22,12 +20,14 @@ namespace Delivery_System__Team_Enif_.Controllers
         private readonly ILogger<AccountController> _logger;
 
         public AccountController(
+            ProjectDbContext projectDbContext,
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             ILogger<AccountController> logger)
         {
+            _projectDbContext = projectDbContext;
             _userManager = userManager;
             _roleManager = roleManager;
             _signInManager = signInManager;
@@ -45,7 +45,7 @@ namespace Delivery_System__Team_Enif_.Controllers
         // Register POST action
         [HttpPost]
         [AllowAnonymous]
-        //[ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(RegisterViewModel model)
         {
             if (ModelState.IsValid)
@@ -63,7 +63,8 @@ namespace Delivery_System__Team_Enif_.Controllers
                     Email = model.Email,
                     Name = model.Name,
                     PhoneNumber = model.Phone,
-                    Address = model.Address
+                    Address = model.Address,
+                    isActive = false
                 };
                 var result = await _userManager.CreateAsync(user, model.Password);
 
@@ -115,77 +116,41 @@ namespace Delivery_System__Team_Enif_.Controllers
         {
              if (userId == null || token == null)
             {
-                return BadRequest("A token and user ID must be provided for email confirmation.");
+                ViewData["Error"] = "There is a problem with your account.";
+                _logger.LogWarning("A token and user ID must be provided for email confirmation.");
+                return View();
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{userId}'.");
+                ViewData["Error"] = "There is a problem with your account.";
+                _logger.LogWarning($"Unable to load user with ID '{userId}'.");
+                return View();
             }
 
             var result = await _userManager.ConfirmEmailAsync(user, token);
             if (result.Succeeded)
             {
-                ViewData["Success"] = "Thank you for confirming your email. Wait your submission to be approved by admin.";
+                user.isActive = true;
+                var newResult = await _userManager.UpdateAsync(user);
+                if (newResult.Succeeded)
+                {
+                    ViewData["Success"] = "Thank you for confirming your email. You can login.";
+                    _logger.LogInformation($"User with ID '{userId}' was registered and activated successfully.");
+                }
+                else
+                {
+                    ViewData["Error"] = "There is a problem with your account activation.";
+                    _logger.LogWarning($"Unable to activate user with ID '{userId}'.");
+                }
+            
             }
             else
             {
                 ViewData["Error"] = "There was a problem confirming your email. Please try again";
             }
             return View();
-        }
-
-        // GET: Admin/PendingUsers
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> PendingUsers()
-        {
-            var pendingUsers = _userManager.Users.Where(u => u.ApprovalStatus == ApprovalStatus.Pending).ToList();
-            return View(pendingUsers);
-        }
-
-        // POST: Admin/ApproveOrReject
-        [HttpPost]
-        [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> ApproveOrReject(string userId, string action)
-        {
-            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(action))
-            {
-                return BadRequest("Invalid data.");
-            }
-
-            var user = await _userManager.FindByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound("User not found.");
-            }
-
-            if (action == "approve")
-            {
-                user.ApprovalStatus = ApprovalStatus.Approved;
-            }
-            else if (action == "reject")
-            {
-                user.ApprovalStatus = ApprovalStatus.Rejected;
-            }
-            else {
-                return BadRequest("Unable to update user status.");
-            }
-
-            await _userManager.UpdateAsync(user);
-
-            if (user.ApprovalStatus == ApprovalStatus.Approved)
-            {
-                user.ApprovalStatus = ApprovalStatus.Approved;
-                await _userManager.UpdateAsync(user);
-
-                // Send email notification
-                var subject = "Your Account has been Approved";
-                var message = "Your account has been approved by the admin. You can login";
-                await _emailSender.SendEmailAsync(user.Email, subject, message);                
-            }
-
-            return RedirectToAction("PendingUsers");
         }
 
         // Login action
@@ -205,9 +170,9 @@ namespace Delivery_System__Team_Enif_.Controllers
                 var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user != null)
                 {
-                    if (user.ApprovalStatus == ApprovalStatus.Pending) // Check if the user is pending approval
+                    if (!user.isActive) 
                     {
-                        ModelState.AddModelError(string.Empty, "Your account is pending approval by an administrator.");
+                        ModelState.AddModelError(string.Empty, "There is a problem with your account.");
                         return View(model);
                     }
 
@@ -296,13 +261,11 @@ namespace Delivery_System__Team_Enif_.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Optionally, you can send a success message here
                     TempData["SuccessMessage"] = "Profile updated successfully!";
                     return RedirectToAction("EditProfile"); // Redirect to the same page or elsewhere
                 }
                 else
                 {
-                    // If there are errors, add them to ModelState
                     foreach (var error in result.Errors)
                     {
                         ModelState.AddModelError(string.Empty, error.Description);
@@ -313,5 +276,55 @@ namespace Delivery_System__Team_Enif_.Controllers
             return View(model);
         }
 
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Users()
+        {
+            var nonAdminUsers = await (from user in _projectDbContext.Users
+                                       join userRole in _projectDbContext.UserRoles on user.Id equals userRole.UserId
+                                       join role in _projectDbContext.Roles on userRole.RoleId equals role.Id
+                                       where role.Name != "Admin"
+                                       select user)
+                            .ToListAsync();
+            return View(nonAdminUsers);
+        }
+
+        [HttpPost]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ActivateOrDeactivateUser(string userId, string action)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                ModelState.AddModelError(string.Empty, "Invalid data.");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "User not found.");
+            }
+
+            if (action == "1")
+            {
+                user.isActive = true;
+            }
+            else
+            { 
+                user.isActive = false;
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded && action == "0")
+            {
+                var message = "Your account has been de-activated";
+                await _emailSender.SendEmailAsync(user.Email, message, message);
+            }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            return RedirectToAction("Users");
+        }
     }
+
 }

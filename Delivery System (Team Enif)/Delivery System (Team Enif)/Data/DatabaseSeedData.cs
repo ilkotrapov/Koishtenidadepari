@@ -84,7 +84,7 @@
                 if (createUser.Succeeded)
                 {
                     user.EmailConfirmed = true;
-                    user.ApprovalStatus = ApprovalStatus.Approved;
+                    user.isActive = true;
                     await userManager.UpdateAsync(user);
                     await userManager.AddToRoleAsync(user, "Admin");
                 }
