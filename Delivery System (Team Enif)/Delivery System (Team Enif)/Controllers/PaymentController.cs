@@ -55,17 +55,18 @@ public class PaymentController : Controller
                     }
                 },
                 Quantity = 1
+
             }
         },
             Mode = "payment",
             SuccessUrl = $"https://localhost:7064/Payment/Success?packageId={packageId}",
             CancelUrl = "https://localhost:7064/Package/Create",
             Metadata = new Dictionary<string, string>
-        {
+            {
             {
                 "packageId", packageId.ToString()
             }
-        }
+            }
         };
 
         var service = new SessionService();
@@ -79,6 +80,7 @@ public class PaymentController : Controller
         public long Amount { get; set; }
         public string Email { get; set; }
     }
+
 
     [HttpPost("webhook")]
     public async Task<IActionResult> StripeWebhook()
@@ -102,7 +104,7 @@ public class PaymentController : Controller
                     {
                         var package = await _projectDbContext.Packages.FindAsync(packageId);
                         if (package != null)
-                        {
+            {
                             package.DeliveryStatusId = (int)DeliveryStatusEnum.Active;
                             await _projectDbContext.SaveChangesAsync();
                         }

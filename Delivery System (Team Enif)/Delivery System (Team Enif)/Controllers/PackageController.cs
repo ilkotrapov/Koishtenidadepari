@@ -365,40 +365,7 @@ namespace Delivery_System__Team_Enif_.Controllers
 
         private bool PackageExists(int id)
         {
-            return _projectDbContext.Packages.Any(e => e.Id == id);
-        }
-
-        [HttpPost("calculate-price")]
-        public IActionResult CalculatePrice([FromBody] PackageViewModel model)
-        {
-            if (model == null)
-            {
-                return BadRequest(new { success = false, message = "Invalid request." });
-            }
-            if (model.Length <= 0 || model.Width <= 0 || model.Hight <= 0 || model.Weight <= 0)
-            {
-                return BadRequest(new { success = false, message = "Invalid dimensions or weight." });
-            }
-
-            decimal basePrice = 10;
-            decimal weightFee = model.Weight * 5;
-            decimal volumeFee = (model.Length * model.Width * model.Hight) / 2000;
-            decimal totalPrice = basePrice + weightFee + volumeFee;
-            long amountInCents = (long)(totalPrice * 100);
-
-            return Ok(new { success = true, totalPrice, amountInCents });
-        }
-
-        [HttpGet("Track/{id}")]
-        public IActionResult Track(int id)
-        {
-            var package = _projectDbContext.Packages
-                .Include(p => p.DeliveryStatus)
-                .FirstOrDefault(p => p.Id == id);
-
-            if (package == null) return NotFound();
-
-            return View(package);
+            return ProjectDbContext.Packages.Any(e => e.Id == id);
         }
     }
 }
