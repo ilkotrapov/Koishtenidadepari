@@ -1,0 +1,26 @@
+﻿@model IEnumerable<ApplicationUserWithRolesViewModel>
+
+<div id="userList">
+    @if (Model == null || !Model.Any())
+    {
+        <p>No employees.</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var user in Model)
+            {
+                var roleNames = string.Join(", ", user.Roles);
+                var isActive = user.User.isActive ? "active" : "inactive";
+                <li>
+                    @user.User.Name (@roleNames, @isActive)
+                    <form asp-action="RemoveEmployee" style="display:inline; padding:0">
+                        <input type="hidden" name="selectedUserId" value="@user.User.Id" />
+                        <input type="hidden" name="officeId" value="@user.User.OfficeId" />
+                        <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+                    </form>
+                </li>
+            }
+        </ul>
+    }
+</div>

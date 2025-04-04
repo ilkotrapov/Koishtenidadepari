@@ -19,7 +19,6 @@ namespace Delivery_System__Team_Enif_.Data
         public DbSet<DeliveryOption> DeliveryOptions { get; set; }
         public DbSet<Delivery> Deliveries { get; set; }
         public DbSet<Office> Offices { get; set; }
-        public DbSet<Courier> Couriers { get; set; } 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

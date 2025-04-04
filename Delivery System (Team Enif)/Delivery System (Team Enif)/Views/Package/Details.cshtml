@@ -3,8 +3,13 @@
 
 @{
     ViewData["Title"] = "Package Information";
+    var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
+    var isUser = User.IsInRole("User");
 }
 
+@if (isAdmin || isOfficeAssistant || isUser)
+{
 <div class="card mb-4 shadow-sm">
     <div class="card-header">
         <h4 class="display-4 text-center text-primary">Package Information</h4>
@@ -78,4 +83,4 @@
             </a>
         </div>
 </div>
-
+}

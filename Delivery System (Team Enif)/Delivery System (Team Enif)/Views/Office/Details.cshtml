@@ -1,0 +1,56 @@
+﻿@model OfficeViewModel
+
+@{
+    ViewData["Title"] = "Office Details";
+    var isAdmin = User.IsInRole("Admin");
+}
+
+@if (isAdmin)
+{
+<div class="card mb-4 shadow-sm">
+    <div class="card-header">
+        <h4 class="display-4 text-center text-primary">Office details</h4>
+    </div>
+
+    <div class="card-body">
+            <table class="table table-hover table-striped table-bordered shadow-lg">
+                <tbody>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.Name)</strong></td>
+                        <td>@Html.DisplayFor(model => model.Name)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.Location)</strong></td>
+                        <td>@Html.DisplayFor(model => model.Location)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.ContactInfo)</strong></td>
+                        <td>@Html.DisplayFor(model => model.ContactInfo)</td>
+                    </tr>
+        
+                    <tr>
+                        <td><strong>@Html.DisplayNameFor(model => model.WorkingHours)</strong></td>
+                        <td>@Html.DisplayFor(model => model.WorkingHours)</td>
+                    </tr>
+            
+                </tbody>
+            </table>
+    </div>
+    <div class="col-md-8 offset-md-2">
+        <div class="form-section">
+            <label for="userId">Emplyees</label>
+                @{
+                    @await Html.PartialAsync("_Employees", Model.Employees)
+                }
+        </div>
+    </div>
+    <div class="card-footer text-center">
+        <a asp-controller="Office" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
+            <i class="fas fa-edit"></i> Edit
+        </a>
+        <a asp-controller="Office" asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-list"></i> Back
+        </a>
+    </div>
+</div>
+}

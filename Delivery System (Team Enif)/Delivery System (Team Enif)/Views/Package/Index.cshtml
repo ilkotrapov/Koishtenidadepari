@@ -4,9 +4,10 @@
     ViewData["Title"] = "Packages";
     var isAdmin = User.IsInRole("Admin");
     var isOfficeAssistant = User.IsInRole("Office assistant");
+    var isUser = User.IsInRole("User");
 }
 
-@if (isAdmin || isOfficeAssistant)
+@if (isAdmin || isOfficeAssistant || isUser)
 {
     <div class="container mt-4">
         <div class="text-center mb-4">
@@ -65,7 +66,7 @@
                                 Details
                             </a>
 
-                            @if (item.DeliveryStatusId == (int)DeliveryStatusEnum.Pending && (isAdmin || isOfficeAssistant))
+                            @if (item.DeliveryStatusId == (int)DeliveryStatusEnum.Pending && (isAdmin || isOfficeAssistant || isUser))
                             {
                                 <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">
                                     Edit

@@ -1,0 +1,20 @@
+﻿@model List<ApplicationUser>
+
+<div id="userList">
+    @if (Model == null || !Model.Any())
+    {
+        <p>No users available to add as employees</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var user in Model)
+            {
+                <li>
+                    <input type="checkbox" name="selectedUserId" value="@user.Id" />
+                    @user.Name (@user.Email)
+                </li>
+            }
+        </ul>
+    }
+</div>

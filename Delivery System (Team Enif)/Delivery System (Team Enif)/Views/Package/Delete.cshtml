@@ -4,9 +4,10 @@
     ViewData["Title"] = "Delete Package";
     var isAdmin = User.IsInRole("Admin");
     var isOfficeAssistant = User.IsInRole("Office assistant");
+    var isUser = User.IsInRole("User");
 }
 
-@if (isAdmin || isOfficeAssistant)
+@if (isAdmin || isOfficeAssistant || isUser)
 {
     <div class="card mb-4 shadow-sm">
         <div class="card-header">

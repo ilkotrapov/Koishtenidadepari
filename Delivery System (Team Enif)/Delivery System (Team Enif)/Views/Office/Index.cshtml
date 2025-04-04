@@ -1,0 +1,59 @@
+﻿@model OfficeViewModel
+
+@{
+    ViewData["Title"] = "Offices";
+    var isAdmin = User.IsInRole("Admin");
+}
+
+@if (isAdmin)
+{
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <a asp-action="Create" class="btn btn-lg btn-primary btn-grey">
+            <i class="fas fa-plus"></i>New Office
+        </a>
+    </div>
+    <table class="table table-hover table-striped table-bordered shadow-sm">
+        <thead class="thead-light">
+            <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Location)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ContactInfo)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.WorkingHours)
+                    </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Offices) {
+                <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Location)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ContactInfo)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.WorkingHours)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
+                            <a asp-action="AddEmployees" asp-route-id="@item.Id">Add Employees</a>
+                        </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+}

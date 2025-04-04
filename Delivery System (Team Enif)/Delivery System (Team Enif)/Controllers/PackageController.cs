@@ -278,7 +278,7 @@ namespace Delivery_System__Team_Enif_.Controllers
 
             if (package.DeliveryStatusId != (int)DeliveryStatusEnum.Pending)
             {
-                return BadRequest("The package ca not be deleted!");
+                return BadRequest("The package can not be deleted!");
             }
 
             PackageViewModel viewModel = new PackageViewModel
