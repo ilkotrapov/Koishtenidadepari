@@ -27,6 +27,8 @@ public class PackageViewModel
 {
     [ValidateNever]
     public IEnumerable<Package> Packages { get; set; }
+
+    [DisplayName("Package number")]
     public int Id { get; set; }
 
     [DisplayName("Sender Name")]
@@ -63,7 +65,7 @@ public class PackageViewModel
     [DisplayName("Package Size (cm³)")]
     public decimal PackageSize => Length * Width * Hight;
 
-    [DisplayName("Weight")]
+    [DisplayName("Weight (kg)")]
     [Required(ErrorMessage = "The Package Weight field is required.")]
     [Range(0.01, double.MaxValue, ErrorMessage = "The Package Weight must be a positive number value more than 0")]
     public decimal Weight { get; set; } = 0;
@@ -112,4 +114,14 @@ public class PackageViewModel
     [Required(ErrorMessage = "The Delivery date field is required.")]
     public DateTime DeliveryDate { get; set; }
 
+    [ValidateNever]
+    [DisplayName("Created Date")]
+    public DateTime CreatedDate { get; set; }
+
+    [ValidateNever]
+    public string CreatedByUserId { get; set; }
+
+    [ValidateNever]
+    [DisplayName("Created By")]
+    public string CreatedByUser { get; set; }
 }

@@ -19,9 +19,21 @@
                 <form asp-controller="Package" asp-action="Edit" asp-action="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="Id" />
+
+                    <div class="form-group">
+                        <span><strong>Package Number:</strong> @Model.Id</span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-text small d-flex justify-content-between">
+                            <span><strong>Created By:</strong> @Model.CreatedByUser</span>
+                            <span><strong>Created Date:</strong> @Model.CreatedDate</span>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         @Html.DropDownListFor(m => m.DeliveryStatusId, new SelectList(Model.DeliveryStatuses, "Value", "Text", Model.DeliveryStatusId), new { @disabled = "disabled", @class = "form-control" })
-                        <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
+                        <span asp-validation-for="DeliveryStatusId" class="text-danger"></span>
                     </div>
 
                     <div class="form-section">

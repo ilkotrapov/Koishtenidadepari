@@ -325,6 +325,10 @@ namespace Delivery_System__Team_Enif_.Controllers
 
             return RedirectToAction("Users");
         }
-    }
 
+        public IActionResult AccessDenied()
+        {
+            return View();
+        }
+    }
 }

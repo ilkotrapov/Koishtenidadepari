@@ -3,26 +3,62 @@ using Microsoft.EntityFrameworkCore;
 using Delivery_System__Team_Enif_.Data;
 using Delivery_System__Team_Enif_.Data.Entities;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Identity;
+using Delivery_System__Team_Enif_.Models;
+using System.Security.Claims;
 
 namespace Delivery_System__Team_Enif_.Controllers
 {
     public class PackageController : Controller
     {
         private readonly ProjectDbContext _projectDbContext;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PackageController(ProjectDbContext projectDbContext)
+        public PackageController(ProjectDbContext projectDbContext, UserManager<ApplicationUser> userManager)
         {
             this._projectDbContext = projectDbContext;
+            this._userManager = userManager;
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            List<Package> packages = _projectDbContext.Packages
-                .Include(p => p.DeliveryOption)
-                .Include(p => p.DeliveryType)
-                .Include(p => p.DeliveryStatus)
-                .ToList();
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                RedirectToAction("Login", "Account");
+            }
+
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            List<Package> packages;
+
+            if (User.IsInRole("User"))
+            {
+                packages = _projectDbContext.Packages
+                    .Include(p => p.CreatedBy)
+                    .Include(p => p.DeliveryOption)
+                    .Include(p => p.DeliveryType)
+                    .Include(p => p.DeliveryStatus)
+                    .Where(p => p.CreatedBy.Id == currentUser.Id)
+                    .OrderBy(p => p.CreatedDate)
+                    .ThenBy(p => p.DeliveryTypeId == (int)DeliveryTypeEnum.Express ? 0 : 1)
+                    .ToList();
+            }
+            else
+            {
+                packages = _projectDbContext.Packages
+                    .Include(p => p.DeliveryOption)
+                    .Include(p => p.DeliveryType)
+                    .Include(p => p.DeliveryStatus)
+                    .OrderBy(p => p.CreatedDate)
+                    .ThenBy(p => p.DeliveryTypeId == (int)DeliveryTypeEnum.Express ? 0 : 1)
+                    .ToList();
+            }
             PackageViewModel viewModel = new PackageViewModel
             {
                 Packages = packages
@@ -31,8 +67,20 @@ namespace Delivery_System__Team_Enif_.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                RedirectToAction("Login", "Account");
+            }
+
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var model = new PackageViewModel()
             {
                 DeliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
@@ -64,17 +112,38 @@ namespace Delivery_System__Team_Enif_.Controllers
                                     ).ToList(),
                 DeliveryDate = DateTime.Now
             };
+
+
+            if (User.IsInRole("User"))
+            {
+                model.SenderName = currentUser.Name;
+                model.SenderAddress = currentUser.Address;
+            }
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult CreateConfirm(Package package)
+        public async Task<IActionResult> CreateConfirm(Package package)
         {
-                package.DeliveryStatusId = (int)DeliveryStatusEnum.Pending;
-                _projectDbContext.Add(package);
-                _projectDbContext.SaveChanges();
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                RedirectToAction("Login", "Account");
+            }
 
-                return RedirectToAction("Index");
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            package.CreatedBy = currentUser;
+            package.CreatedDate = DateTime.Now;
+            package.DeliveryStatusId = (int)DeliveryStatusEnum.Pending;
+            _projectDbContext.Add(package);
+            _projectDbContext.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
         [HttpGet("track/{trackingNumber}")]
@@ -120,11 +189,34 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return NotFound("The provided package id is null");
             }
 
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                RedirectToAction("Login", "Account");
+            }
+
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var package = await _projectDbContext.Package
-                .FirstOrDefaultAsync(m => m.Id == id);
+                                .Include(p => p.CreatedBy)
+                                .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
             {
-                return NotFound("No package with provided package id");
+                ModelState.AddModelError(string.Empty, "Not found a package with provided package id");
+                return RedirectToAction("Index");
+            }
+
+            bool isUser = await _userManager.IsInRoleAsync(currentUser, "User");
+            bool isOfficeAssistant = await _userManager.IsInRoleAsync(currentUser, "Office Assistant");
+
+            if (User.IsInRole("User") && package.CreatedBy.Id != currentUser.Id)
+            {
+                ModelState.AddModelError(string.Empty, "No package with provided package id or package not created by you");
+                return RedirectToAction("Index");
             }
 
             PackageViewModel viewModel = new PackageViewModel
@@ -138,10 +230,15 @@ namespace Delivery_System__Team_Enif_.Controllers
                 Width = package.Width,
                 Hight = package.Hight,
                 Weight = package.Weight,
+
                 DeliveryOptionSelected = (DeliveryOptionEnum)Enum.ToObject(typeof(DeliveryOptionEnum), package.DeliveryOptionId),
                 DeliveryTypeSelected = (DeliveryTypeEnum)Enum.ToObject(typeof(DeliveryTypeEnum), package.DeliveryTypeId),
                 DeliveryStatusSelected = (DeliveryStatusEnum)Enum.ToObject(typeof(DeliveryStatusEnum), package.DeliveryStatusId),
-                DeliveryDate = package.DeliveryDate
+                DeliveryDate = package.DeliveryDate,
+
+                CreatedDate = package.CreatedDate,
+                CreatedByUserId = package.CreatedBy.Id,
+                CreatedByUser = package.CreatedBy.Name
             }; 
 
             return View(viewModel);
@@ -155,15 +252,37 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return NotFound("The provided package id is null");
             }
 
-            var package = await _projectDbContext.Packages.FindAsync(id);
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                RedirectToAction("Login", "Account");
+            }
+
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            var package = await _projectDbContext.Package
+                                .Include(p => p.CreatedBy)
+                                .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
             {
-                return NotFound("No package found with the provided package id");
+                ModelState.AddModelError(string.Empty, "Not found a package with provided package id");
+                return RedirectToAction("Index");
+            }
+
+            if (User.IsInRole("User") && package.CreatedBy.Id != currentUser.Id)
+            {
+                ModelState.AddModelError(string.Empty, "No package with provided package id or package not created by you");
+                return RedirectToAction("Index");
             }
 
             if (package.DeliveryStatusId != (int)DeliveryStatusEnum.Pending)
             {
-                return BadRequest("The package is not editable!");
+                ModelState.AddModelError(string.Empty, "The package is not editable!");
+                return RedirectToAction("Details");
             }
 
             var deliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
@@ -212,13 +331,16 @@ namespace Delivery_System__Team_Enif_.Controllers
                 DeliveryTypes = deliveryTypes,
                 DeliveryStatusId = package.DeliveryStatusId,
                 DeliveryStatuses = deliveryStatuses,
-                DeliveryDate = package.DeliveryDate
+                DeliveryDate = package.DeliveryDate,
+
+                CreatedDate = package.CreatedDate,
+                CreatedByUserId = package.CreatedBy.Id,
+                CreatedByUser = package.CreatedBy.Name
             };
 
             return View(viewModel);
         }
 
-        // POST: Confirm Package Edit
         [HttpPost]
         public async Task<IActionResult> Edit(PackageViewModel viewModel)
         {
@@ -227,10 +349,32 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return View(viewModel);
             }
 
-            var package = await _projectDbContext.Packages.FindAsync(viewModel.Id);
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                RedirectToAction("Login", "Account");
+            }
+
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            var package = await _projectDbContext.Package
+                                .Include(p => p.CreatedBy)
+                                .FirstOrDefaultAsync(m => m.Id == viewModel.Id);
+
             if (package == null)
             {
-                return NotFound("No package found to edit");
+                ModelState.AddModelError(string.Empty, "No package with provided package id found");
+                return RedirectToAction("Index");
+            }
+
+            if (User.IsInRole("User") && package.CreatedBy.Id != currentUser.Id)
+            {
+                ModelState.AddModelError(string.Empty, "No package with provided package id or package not created by you");
+                return RedirectToAction("Index");
             }
 
             package.SenderName = viewModel.SenderName;
@@ -269,16 +413,37 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return NotFound("The provided package id is null");
             }
 
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                RedirectToAction("Login", "Account");
+            }
+
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
             var package = await _projectDbContext.Package
-                .FirstOrDefaultAsync(m => m.Id == id);
+                                .Include(p => p.CreatedBy)
+                                .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
             {
-                return NotFound("No package with provided package id");
+                ModelState.AddModelError(string.Empty, "Not found a package with provided package id");
+                return RedirectToAction("Index");
+            }
+
+            if (User.IsInRole("User") && package.CreatedBy.Id != currentUser.Id)
+            {
+                ModelState.AddModelError(string.Empty, "No package with provided package id or package not created by you");
+                return RedirectToAction("Index");
             }
 
             if (package.DeliveryStatusId != (int)DeliveryStatusEnum.Pending)
             {
-                return BadRequest("The package can not be deleted!");
+                ModelState.AddModelError(string.Empty, "The package can not be deleted!");
+                return RedirectToAction("Index");
             }
 
             PackageViewModel viewModel = new PackageViewModel
@@ -289,7 +454,11 @@ namespace Delivery_System__Team_Enif_.Controllers
                 DeliveryOptionSelected = (DeliveryOptionEnum)Enum.ToObject(typeof(DeliveryOptionEnum), package.DeliveryOptionId),
                 DeliveryTypeSelected = (DeliveryTypeEnum)Enum.ToObject(typeof(DeliveryTypeEnum), package.DeliveryTypeId),
                 DeliveryStatusSelected = (DeliveryStatusEnum)Enum.ToObject(typeof(DeliveryStatusEnum), package.DeliveryStatusId),
-                DeliveryDate = package.DeliveryDate
+                DeliveryDate = package.DeliveryDate,
+
+                CreatedDate = package.CreatedDate,
+                CreatedByUserId = package.CreatedBy.Id,
+                CreatedByUser = package.CreatedBy.Name
             };
 
             return View(viewModel);
@@ -299,12 +468,35 @@ namespace Delivery_System__Team_Enif_.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var package = await _projectDbContext.Packages.FindAsync(id);
-            if (package != null)
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
             {
-                _projectDbContext.Packages.Remove(package);
+                RedirectToAction("Login", "Account");
             }
 
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            var package = await _projectDbContext.Package
+                                .Include(p => p.CreatedBy)
+                                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (package == null)
+            {
+                ModelState.AddModelError(string.Empty, "No package with provided package id found");
+                return RedirectToAction("Index");
+            }
+
+            if (User.IsInRole("User") && package.CreatedBy.Id != currentUser.Id)
+            {
+                ModelState.AddModelError(string.Empty, "No package with provided package id or package not created by you");
+                return RedirectToAction("Index");
+            }
+
+            _projectDbContext.Packages.Remove(package);
             await _projectDbContext.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
@@ -312,6 +504,33 @@ namespace Delivery_System__Team_Enif_.Controllers
         private bool PackageExists(int id)
         {
             return _projectDbContext.Packages.Any(e => e.Id == id);
+        }
+
+        private async Task<ApplicationUser> GetCurrentUserAsync()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return null;
+            }
+
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return null;
+            }
+
+            var currentUser = await _userManager.FindByIdAsync(userId);
+            if (currentUser == null)
+            {
+                return null;
+            }
+
+            return currentUser;
+        }
+
+        private async Task<bool> IsUserRolesPermitAsync(ApplicationUser applicationUser)
+        {
+            return User.IsInRole("Admin") || User.IsInRole("Office assistant") || User.IsInRole("User");
         }
     }
 }
