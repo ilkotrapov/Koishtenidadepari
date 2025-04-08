@@ -4,6 +4,7 @@ using Delivery_System__Team_Enif_.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Delivery_System__Team_Enif_.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250408194826_DeliveryUpdate3")]
+    partial class DeliveryUpdate3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -32,7 +35,7 @@ namespace Delivery_System__Team_Enif_.Migrations
 
                     b.Property<string>("CourierId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("DeliveryDate")
                         .HasColumnType("datetime2");
@@ -56,8 +59,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CourierId");
 
                     b.HasIndex("DeliveryOptionId");
 
@@ -83,18 +84,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DeliveryOptions");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "DoorToDoor"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "PickUp_DropOffLocalOffice"
-                        });
                 });
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.DeliveryStatus", b =>
@@ -112,23 +101,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DeliveryStatuses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Pending"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Active"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Completed"
-                        });
                 });
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.DeliveryType", b =>
@@ -146,18 +118,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DeliveryTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Standard"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Express"
-                        });
                 });
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Office", b =>
@@ -471,12 +431,6 @@ namespace Delivery_System__Team_Enif_.Migrations
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Delivery", b =>
                 {
-                    b.HasOne("Delivery_System__Team_Enif_.Models.ApplicationUser", "Courier")
-                        .WithMany()
-                        .HasForeignKey("CourierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Delivery_System__Team_Enif_.Data.Entities.DeliveryOption", "DeliveryOption")
                         .WithMany()
                         .HasForeignKey("DeliveryOptionId")
@@ -494,8 +448,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                         .HasForeignKey("DeliveryTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Courier");
 
                     b.Navigation("DeliveryOption");
 

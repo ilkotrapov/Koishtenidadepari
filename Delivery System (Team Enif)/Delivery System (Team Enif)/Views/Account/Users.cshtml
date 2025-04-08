@@ -1,4 +1,7 @@
-﻿@model IEnumerable<ApplicationUser>
+﻿@using Delivery_System__Team_Enif_.Models
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<ApplicationUser> UserManager
+@model IEnumerable<ApplicationUser>
 @{
     ViewData["Title"] = "Users";
     var isAdmin = User.IsInRole("Admin");
@@ -20,24 +23,22 @@
                         <th>User</th>
                         <th>Email</th>
                         <th>Status</th>
+                        <th>Role</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var user in Model)
                     {
-                        <tr>
-                            <td>@user.UserName</td>
-                            <td>@user.Email</td>
-                            @if (user.isActive)
-                            {
-                                <td>Active</td>
-                            }
-                            else
-                            {
-                                <td>Inactive</td>
-                            }
+                        var roles = await UserManager.GetRolesAsync(user);
+                        var roleNames = string.Join(", ", roles);
+                        var status = user.isActive ? "Active" : "Inactive";
 
+                        <tr>
+                            <td>@user.Name</td>
+                            <td>@user.Email</td>
+                            <td>@status</td>
+                            <td>@roleNames</td>
                             <td>
                                 <form method="post" action="@Url.Action("ActivateOrDeactivateUser", "Account")">
                                     <input type="hidden" name="userId" value="@user.Id" />

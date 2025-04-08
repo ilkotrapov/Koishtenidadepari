@@ -1,60 +1,57 @@
-﻿@model PackageViewModel
+﻿@model DeliveryViewModel
 
 @{
     ViewData["Title"] = "Deliveries";
+    var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
-<div class="container mt-4">
-    <table class="table table-hover table-striped table-bordered shadow-sm">
-        <thead class="thead-light">
-            <tr>
-                <th>
-                   ID
-                </th>
-                <th>
-                    Delivery Option
-                </th>
-                <th>
-                    Delivery Type
-                </th>
-                <th>
-                    Status
-                </th>
-                <th>
-                    Delivery Date
-                </th>  
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Packages) {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryOption)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryType)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryStatus)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.DeliveryDate)
-                </td>
-                
-                <td>
-                    <div>
-                            <button asp-action="Edit" asp-route-id="@item.Id">Edit</button> |
-                            <button asp-action="Details" asp-route-id="@item.Id">Details</button> |
-                            <button asp-action="Delete" asp-route-id="@item.Id">Delete</button>
-                    </div>
-                    
-                </td>
-            </tr>
-            }
-        </tbody>
-    </table>
-</div>
+@if (isAdmin || isOfficeAssistant) {
+
+    <div class="container mt-4">
+        <div class="text-center mb-4">
+            <a asp-action="Create" class="btn btn-lg btn-primary btn-grey">
+                <i class="fas fa-plus"></i>New Delivery
+            </a>
+        </div>
+        <table class="table table-hover table-striped table-bordered shadow-sm">
+            <thead class="thead-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Package ID</th>
+                    <th>Courier</th>
+                    <th>Pickup Time</th>
+                    <th>Delivery Time</th>
+                    <th>Delivery Option</th>
+                    <th>Delivery Type</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model.Deliveries)
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.PackageId</td>
+                        <td>@item.Courier?.Name</td>
+                        <td>@item.PickupTime.ToString("g")</td>
+                        <td>@item.DeliveryTime.ToString("g")</td>
+                        <td>@item.DeliveryOption?.Name</td>
+                        <td>@item.DeliveryType?.Name</td>
+                        <td>@item.DeliveryStatus?.Name</td>
+                        <td>
+                            <div>
+                                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+
+        </table>
+    </div>
+}

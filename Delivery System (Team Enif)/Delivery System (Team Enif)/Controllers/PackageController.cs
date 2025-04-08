@@ -201,7 +201,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var package = await _projectDbContext.Package
+            var package = await _projectDbContext.Packages
                                 .Include(p => p.CreatedBy)
                                 .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
@@ -264,7 +264,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var package = await _projectDbContext.Package
+            var package = await _projectDbContext.Packages
                                 .Include(p => p.CreatedBy)
                                 .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
@@ -361,7 +361,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var package = await _projectDbContext.Package
+            var package = await _projectDbContext.Packages
                                 .Include(p => p.CreatedBy)
                                 .FirstOrDefaultAsync(m => m.Id == viewModel.Id);
 
@@ -425,7 +425,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var package = await _projectDbContext.Package
+            var package = await _projectDbContext.Packages
                                 .Include(p => p.CreatedBy)
                                 .FirstOrDefaultAsync(m => m.Id == id);
             if (package == null)
@@ -480,7 +480,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var package = await _projectDbContext.Package
+            var package = await _projectDbContext.Packages
                                 .Include(p => p.CreatedBy)
                                 .FirstOrDefaultAsync(m => m.Id == id);
 

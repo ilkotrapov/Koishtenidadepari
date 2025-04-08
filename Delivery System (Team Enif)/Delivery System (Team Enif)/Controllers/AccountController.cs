@@ -192,6 +192,11 @@ namespace Delivery_System__Team_Enif_.Controllers
                         return View(model);
                     }
                 }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                }
+
             }
             return View(model);
         }
@@ -295,12 +300,14 @@ namespace Delivery_System__Team_Enif_.Controllers
             if (string.IsNullOrEmpty(userId))
             {
                 ModelState.AddModelError(string.Empty, "Invalid data.");
+                return RedirectToAction("Users");
             }
 
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
                 ModelState.AddModelError(string.Empty, "User not found.");
+                return RedirectToAction("Users");
             }
 
             if (action == "1")
@@ -325,6 +332,26 @@ namespace Delivery_System__Team_Enif_.Controllers
 
             return RedirectToAction("Users");
         }
+
+        public async Task<IActionResult> Index()
+        {
+            var users = _userManager.Users.ToList();
+            var userViewModels = new List<ApplicationUserWithRolesViewModel>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user); // ✅ This gets role names like "Admin", "Courier"
+
+                userViewModels.Add(new ApplicationUserWithRolesViewModel
+                {
+                    User = user,
+                    Roles = roles.ToList()
+                });
+            }
+
+            return View(userViewModels); // 👈 View must be strongly typed: @model IEnumerable<ApplicationUserWithRolesViewModel>
+        }
+
 
         public IActionResult AccessDenied()
         {

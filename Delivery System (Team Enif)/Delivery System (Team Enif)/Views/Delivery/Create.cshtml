@@ -1,4 +1,4 @@
-﻿@model Delivery
+﻿@model DeliveryViewModel
 
 @{
     ViewData["Title"] = "Create New Delivery";
@@ -20,6 +20,7 @@
             <div class="form-group">
                 <label asp-for="CourierId" class="control-label"></label>
                 <select asp-for="CourierId" class ="form-control" asp-items="ViewBag.CourierId"></select>
+                <span asp-validation-for="CourierId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="PickupTime" class="control-label"></label>
@@ -32,9 +33,26 @@
                 <span asp-validation-for="DeliveryTime" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="DeliveryStatus" class="control-label"></label>
-                <input asp-for="DeliveryStatus" class="form-control" />
-                <span asp-validation-for="DeliveryStatus" class="text-danger"></span>
+                <label asp-for="DeliveryOptionId" class="control-label"></label>
+                <select asp-for="DeliveryOptionId" class="form-control" asp-items="ViewBag.DeliveryOptions">
+                    <option value="">-- Select Delivery Option --</option>
+                </select>
+                <span asp-validation-for="DeliveryOptionId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DeliveryTypeId" class="control-label"></label>
+                <select asp-for="DeliveryTypeId" class="form-control" asp-items="ViewBag.DeliveryTypes">
+                    <option value="">-- Select Delivery Type --</option>
+                </select>
+                <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="DeliveryStatusId" class="control-label"></label>
+                <select asp-for="DeliveryStatusId" class="form-control" asp-items="ViewBag.DeliveryStatuses">
+                    <option value="">-- Select Delivery Status --</option>
+                </select>
+                <span asp-validation-for="DeliveryStatusId" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
