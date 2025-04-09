@@ -162,8 +162,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return View(officeViewModel);
             }
 
-            bool officeExists = await _context.Offices
-        .AnyAsync(o => o.Name.ToLower() == officeViewModel.Name.ToLower()
+            bool officeExists = await _context.Offices.AnyAsync(o => o.Name.ToLower() == officeViewModel.Name.ToLower()
                     && o.Location.ToLower() == officeViewModel.Location.ToLower()
                     && o.Id != id);
 
@@ -274,7 +273,7 @@ namespace Delivery_System__Team_Enif_.Controllers
             }
 
             var courierRole = await _roleManager.FindByNameAsync("Courier");
-            var officeAssistantRole = await _roleManager.FindByNameAsync("Office Assistant");
+            var officeAssistantRole = await _roleManager.FindByNameAsync("Office assistant");
               
             var filteredUsers = new List<ApplicationUser>();
             foreach (var user in selectedUsersByRoles)
@@ -284,7 +283,8 @@ namespace Delivery_System__Team_Enif_.Controllers
                 {
                     filteredUsers.Add(user);
                 }
-                else if (selectedRole == "Office Assistance" && officeAssistantRole != null && userRoles.Contains(officeAssistantRole.Name))
+                
+                if (selectedRole == "Office assistant" && officeAssistantRole != null && userRoles.Contains(officeAssistantRole.Name))
                 {
                     filteredUsers.Add(user);
                 }
@@ -319,7 +319,7 @@ namespace Delivery_System__Team_Enif_.Controllers
             }
 
             var courierRole = await _roleManager.FindByNameAsync("Courier");
-            var officeAssistantRole = await _roleManager.FindByNameAsync("Office Assistant");
+            var officeAssistantRole = await _roleManager.FindByNameAsync("Office assistant");
             var usersWithOfficeAssigned = selectedUsersByRoles.Where(u => u.OfficeId != null && u.OfficeId == officeId).ToList();
 
             return PartialView("_UsersWithOfficeAssigned", usersWithOfficeAssigned);
@@ -364,7 +364,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 {
                     filteredUsers.Add(user);
                 }
-                else if (selectedRole == "Office Assistance" && officeAssistantRole != null && userRoles.Contains(officeAssistantRole.Name))
+                else if (selectedRole == "Office assistant" && officeAssistantRole != null && userRoles.Contains(officeAssistantRole.Name))
                 {
                     filteredUsers.Add(user);
                 }
@@ -448,25 +448,28 @@ namespace Delivery_System__Team_Enif_.Controllers
 
         private async Task<IEnumerable<ApplicationUserWithRolesViewModel>> GetOfficeEmployees(int id)
         {
-            var allUsersByOffice = await _userManager.Users.Where(u => u.OfficeId == id).ToListAsync();
+            var allUsersByOffice = await _userManager.Users
+                                    .Where(u => u.OfficeId == id)
+                                    .ToListAsync(); 
+
             var employees = new List<ApplicationUserWithRolesViewModel>();
 
             if (allUsersByOffice.Any())
             {
-                var tasks = allUsersByOffice.Select(async user =>
+                foreach (var user in allUsersByOffice)
                 {
                     var roles = await _userManager.GetRolesAsync(user);
-                    return new ApplicationUserWithRolesViewModel
+                    var employee = new ApplicationUserWithRolesViewModel
                     {
                         User = user,
                         Roles = roles.ToList()
                     };
-                });
 
-                var results = await Task.WhenAll(tasks);
-                employees = results
-                    .Where(r => r.Roles.Contains("Courier") || r.Roles.Contains("Office assistant"))
-                    .ToList();
+                    if (employee.Roles.Contains("Courier") || employee.Roles.Contains("Office assistant"))
+                    {
+                        employees.Add(employee);
+                    }
+                }
             }
 
             return employees;

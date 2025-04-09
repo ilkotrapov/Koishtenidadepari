@@ -70,6 +70,17 @@ public class PackageViewModel
     [Range(0.01, double.MaxValue, ErrorMessage = "The Package Weight must be a positive number value more than 0")]
     public decimal Weight { get; set; } = 0;
 
+    [DisplayName("Office")]
+    [Required(ErrorMessage = "The Office field is required.")]
+    public int OfficeId { get; set; }
+
+    [DisplayName("Office")]
+    [ValidateNever]
+    public string OfficeSelected { get; set; }
+
+    [ValidateNever]
+    public IEnumerable<Office> AvailableOffices { get; set; }
+
     [DisplayName("Delivery Option")]
     public int DeliveryOptionId { get; set; } = (int)DeliveryOptionEnum.PickUp_DropOffLocalOffice;
 
@@ -124,4 +135,6 @@ public class PackageViewModel
     [ValidateNever]
     [DisplayName("Created By")]
     public string CreatedByUser { get; set; }
+
+    public string CurrentUserId { get; set; }
 }

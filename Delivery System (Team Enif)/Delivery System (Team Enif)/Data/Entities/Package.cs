@@ -13,6 +13,9 @@ namespace Delivery_System__Team_Enif_.Data.Entities
         public required decimal Width { get; set; }
         public required decimal Hight { get; set; }
         public required decimal Weight { get; set; }
+        public int? OfficeId { get; set; }
+        public Office? Office { get; set; }
+
         public int DeliveryOptionId { get; set; }
         public required DeliveryOption DeliveryOption { get; set; }
         public int DeliveryTypeId { get; set; }

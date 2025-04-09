@@ -41,6 +41,7 @@ namespace Delivery_System__Team_Enif_.Controllers
             {
                 packages = _projectDbContext.Packages
                     .Include(p => p.CreatedBy)
+                    .Include(p => p.Office)
                     .Include(p => p.DeliveryOption)
                     .Include(p => p.DeliveryType)
                     .Include(p => p.DeliveryStatus)
@@ -51,18 +52,45 @@ namespace Delivery_System__Team_Enif_.Controllers
             }
             else
             {
-                packages = _projectDbContext.Packages
+                if (User.IsInRole("Office assistant") && currentUser.OfficeId == null)
+                {
+                    ModelState.AddModelError(string.Empty, "No packages found due to no office assigned to current user");
+                    return View();
+                }
+
+                if (User.IsInRole("Office assistant"))
+                {
+                    packages = _projectDbContext.Packages
+                                        .Include(p => p.CreatedBy)
+                                       .Include(p => p.Office)
+                                       .Include(p => p.DeliveryOption)
+                                       .Include(p => p.DeliveryType)
+                                       .Include(p => p.DeliveryStatus)
+                                       .Where(p => p.OfficeId == currentUser.OfficeId)
+                                       .OrderBy(p => p.CreatedDate)
+                                       .ThenBy(p => p.DeliveryTypeId == (int)DeliveryTypeEnum.Express ? 0 : 1)
+                                       .ToList();
+                }
+                else
+                {
+                    packages = _projectDbContext.Packages
+                    .Include(p => p.CreatedBy)
+                    .Include(p => p.Office)
                     .Include(p => p.DeliveryOption)
                     .Include(p => p.DeliveryType)
                     .Include(p => p.DeliveryStatus)
                     .OrderBy(p => p.CreatedDate)
                     .ThenBy(p => p.DeliveryTypeId == (int)DeliveryTypeEnum.Express ? 0 : 1)
                     .ToList();
+                }
             }
+
             PackageViewModel viewModel = new PackageViewModel
             {
-                Packages = packages
+                Packages = packages,
+                CurrentUserId = currentUser.Id
             };
+
             return View(viewModel);
         }
 
@@ -81,6 +109,26 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
+            IQueryable<Office> offices = _projectDbContext.Offices.Include(o => o.Employees);
+            int officeIdAssignedToUser = -1;
+            if (User.IsInRole("Office assistant"))
+            {
+                var officeAssignedToUser = await _projectDbContext.Offices
+                                            .Where(o => o.Employees.Any(e => e.Id == currentUser.Id))
+                                            .FirstOrDefaultAsync();
+
+                if (officeAssignedToUser != null)
+                {
+                    offices = offices.Where(o => o.Id == officeAssignedToUser.Id);
+                    officeIdAssignedToUser = officeAssignedToUser.Id;
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "No office assigned to current Office Assistance");
+                    return RedirectToAction("Index");
+                }
+            }
+            
             var model = new PackageViewModel()
             {
                 DeliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
@@ -110,15 +158,21 @@ namespace Delivery_System__Team_Enif_.Controllers
                                         Selected = s == DeliveryStatusEnum.Pending
                                     }
                                     ).ToList(),
-                DeliveryDate = DateTime.Now
+                DeliveryDate = DateTime.Now,
+                AvailableOffices = await offices.ToListAsync()
             };
-
 
             if (User.IsInRole("User"))
             {
                 model.SenderName = currentUser.Name;
                 model.SenderAddress = currentUser.Address;
             }
+
+            if (User.IsInRole("Office assistant") && officeIdAssignedToUser != -1)
+            {
+                model.OfficeId = officeIdAssignedToUser;
+            }
+
             return View(model);
         }
 
@@ -135,6 +189,11 @@ namespace Delivery_System__Team_Enif_.Controllers
             if (!isUserRolePermit)
             {
                 return RedirectToAction("AccessDenied", "Account");
+            }
+
+            if (User.IsInRole("Office assistant"))
+            {
+                package.OfficeId = currentUser.OfficeId;
             }
 
             package.CreatedBy = currentUser;
@@ -201,17 +260,21 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var package = await _projectDbContext.Packages
-                                .Include(p => p.CreatedBy)
-                                .FirstOrDefaultAsync(m => m.Id == id);
+            IQueryable<Package> packageQuery = _projectDbContext.Packages
+                                                .Include(p => p.CreatedBy)
+                                                .Include(p => p.Office);
+
+            if (User.IsInRole("Office assistant") && currentUser.OfficeId != null)
+            {
+                packageQuery = packageQuery.Where(p => p.OfficeId == currentUser.OfficeId);
+            }
+
+            var package = await packageQuery.FirstOrDefaultAsync(p => p.Id == id);
             if (package == null)
             {
                 ModelState.AddModelError(string.Empty, "Not found a package with provided package id");
                 return RedirectToAction("Index");
             }
-
-            bool isUser = await _userManager.IsInRoleAsync(currentUser, "User");
-            bool isOfficeAssistant = await _userManager.IsInRoleAsync(currentUser, "Office Assistant");
 
             if (User.IsInRole("User") && package.CreatedBy.Id != currentUser.Id)
             {
@@ -230,7 +293,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 Width = package.Width,
                 Hight = package.Hight,
                 Weight = package.Weight,
-
+                
                 DeliveryOptionSelected = (DeliveryOptionEnum)Enum.ToObject(typeof(DeliveryOptionEnum), package.DeliveryOptionId),
                 DeliveryTypeSelected = (DeliveryTypeEnum)Enum.ToObject(typeof(DeliveryTypeEnum), package.DeliveryTypeId),
                 DeliveryStatusSelected = (DeliveryStatusEnum)Enum.ToObject(typeof(DeliveryStatusEnum), package.DeliveryStatusId),
@@ -239,7 +302,12 @@ namespace Delivery_System__Team_Enif_.Controllers
                 CreatedDate = package.CreatedDate,
                 CreatedByUserId = package.CreatedBy.Id,
                 CreatedByUser = package.CreatedBy.Name
-            }; 
+            };
+
+            if (package.Office != null)
+            {
+                viewModel.OfficeSelected = package.Office.Name;
+            }
 
             return View(viewModel);
         }
@@ -264,9 +332,16 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var package = await _projectDbContext.Packages
-                                .Include(p => p.CreatedBy)
-                                .FirstOrDefaultAsync(m => m.Id == id);
+            IQueryable<Package> packageQuery = _projectDbContext.Packages   
+                                                .Include(p => p.CreatedBy)
+                                                .Include(p => p.Office);
+
+            if (User.IsInRole("Office assistant") && currentUser.OfficeId != null)
+            {
+                packageQuery = packageQuery.Where(p => p.OfficeId == currentUser.OfficeId);
+            }
+
+            var package = await packageQuery.FirstOrDefaultAsync(p => p.Id == id);
             if (package == null)
             {
                 ModelState.AddModelError(string.Empty, "Not found a package with provided package id");
@@ -338,6 +413,35 @@ namespace Delivery_System__Team_Enif_.Controllers
                 CreatedByUser = package.CreatedBy.Name
             };
 
+            var officeQuery = _projectDbContext.Offices.AsQueryable();
+            if (User.IsInRole("Office assistant"))
+            {
+                var officeId = currentUser.OfficeId;
+                if (officeId == null)
+                {
+                    ModelState.AddModelError(string.Empty, "No office assigned to the current Office Assistant");
+                    return View(viewModel);
+                }
+                
+                var availableUserOffices = await officeQuery.Where(o => o.Id == officeId).ToListAsync();
+                if (!availableUserOffices.Any())
+                {
+                    ModelState.AddModelError(string.Empty, "No office assigned to the current Office Assistant");
+                    return View(viewModel);
+                }
+                else
+                {
+                    viewModel.OfficeId = officeId.Value;
+                    viewModel.AvailableOffices = availableUserOffices;
+                }
+            } else {
+                if (package.OfficeId != null)
+                {
+                    viewModel.OfficeId = package.OfficeId.Value;
+                }
+                viewModel.AvailableOffices = await officeQuery.ToListAsync();
+            }
+
             return View(viewModel);
         }
 
@@ -363,6 +467,7 @@ namespace Delivery_System__Team_Enif_.Controllers
 
             var package = await _projectDbContext.Packages
                                 .Include(p => p.CreatedBy)
+                                .Include(p => p.Office)
                                 .FirstOrDefaultAsync(m => m.Id == viewModel.Id);
 
             if (package == null)
@@ -385,6 +490,7 @@ namespace Delivery_System__Team_Enif_.Controllers
             package.Width = viewModel.Width;
             package.Hight = viewModel.Hight;
             package.Weight = viewModel.Weight;
+            package.OfficeId = viewModel.OfficeId;
 
             var doe = _projectDbContext.DeliveryOptions.FirstOrDefault(s => s.Id == viewModel.DeliveryOptionId);
             if (doe != null)
@@ -425,9 +531,16 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var package = await _projectDbContext.Packages
-                                .Include(p => p.CreatedBy)
-                                .FirstOrDefaultAsync(m => m.Id == id);
+            IQueryable<Package> packageQuery = _projectDbContext.Packages
+                                                .Include(p => p.CreatedBy)
+                                                .Include(p => p.Office);
+
+            if (User.IsInRole("Office assistant") && currentUser.OfficeId != null)
+            {
+                packageQuery = packageQuery.Where(p => p.OfficeId == currentUser.OfficeId);
+            }
+
+            var package = await packageQuery.FirstOrDefaultAsync(p => p.Id == id);
             if (package == null)
             {
                 ModelState.AddModelError(string.Empty, "Not found a package with provided package id");
@@ -480,9 +593,16 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("AccessDenied", "Account");
             }
 
-            var package = await _projectDbContext.Packages
-                                .Include(p => p.CreatedBy)
-                                .FirstOrDefaultAsync(m => m.Id == id);
+            IQueryable<Package> packageQuery = _projectDbContext.Packages
+                                                .Include(p => p.CreatedBy)
+                                                .Include(p => p.Office);
+
+            if (User.IsInRole("Office assistant") && currentUser.OfficeId != null)
+            {
+                packageQuery = packageQuery.Where(p => p.OfficeId == currentUser.OfficeId);
+            }
+
+            var package = await packageQuery.FirstOrDefaultAsync(p => p.Id == id);
 
             if (package == null)
             {
@@ -493,6 +613,12 @@ namespace Delivery_System__Team_Enif_.Controllers
             if (User.IsInRole("User") && package.CreatedBy.Id != currentUser.Id)
             {
                 ModelState.AddModelError(string.Empty, "No package with provided package id or package not created by you");
+                return RedirectToAction("Index");
+            }
+
+            if (package.DeliveryStatusId != (int)DeliveryStatusEnum.Pending)
+            {
+                ModelState.AddModelError(string.Empty, "The package can not be deleted!");
                 return RedirectToAction("Index");
             }
 
