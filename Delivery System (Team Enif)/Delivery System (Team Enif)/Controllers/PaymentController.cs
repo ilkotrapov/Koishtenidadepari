@@ -40,32 +40,30 @@ public class PaymentController : Controller
 
         var options = new SessionCreateOptions
         {
-            PaymentMethodTypes = new List<string> { "card" },
-            LineItems = new List<SessionLineItemOptions>
-        {
-            new SessionLineItemOptions
-            {
-                PriceData = new SessionLineItemPriceDataOptions
-                {
-                    Currency = "eur",
-                    UnitAmount = amount,
-                    ProductData = new SessionLineItemPriceDataProductDataOptions
-                    {
-                        Name = "Package Delivery"
-                    }
-                },
-                Quantity = 1
-
-            }
-        },
             Mode = "payment",
-            SuccessUrl = $"https://localhost:7064/Payment/Success?packageId={packageId}",
-            CancelUrl = "https://localhost:7064/Package/Create",
-            Metadata = new Dictionary<string, string>
+            PaymentMethodTypes = new List<string> { "card" },
+            SuccessUrl = $"https://localhost:7024/api/payment/payment-success?packageId={packageId}",
+            CancelUrl = $"https://localhost:7024/api/payment/payment-cancelled?packageId={packageId}",
+            LineItems = new List<SessionLineItemOptions>
             {
+                new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        Currency = "eur",
+                        UnitAmount = amount,
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = "Package Delivery"
+                        }
+                    },
+                    Quantity = 1
+
+                }
+            },
+            Metadata = new Dictionary<string, string> 
             {
-                "packageId", packageId.ToString()
-            }
+                {"packageId", packageId.ToString() }
             }
         };
 
@@ -73,6 +71,69 @@ public class PaymentController : Controller
         var session = service.Create(options);
 
         return Redirect(session.Url); // Redirect to Stripe checkout
+    }
+
+    [HttpGet("payment-success")]
+    public IActionResult Success(int packageId)
+    {
+        var package = _projectDbContext.Packages
+            .Include(p => p.DeliveryStatus)
+            .FirstOrDefault(p => p.Id == packageId);
+
+        if (package == null) return NotFound();
+
+        // Generate tracking number if not exists
+        if (string.IsNullOrEmpty(package.TrackingNumber))
+        {
+            package.TrackingNumber = GenerateTrackingNumber();
+            _projectDbContext.SaveChanges();
+        }
+
+        return View("~/Views/Delivery/PaymentSuccess.cshtml", package);
+    }
+
+    [HttpGet("payment-cancelled")]
+    public IActionResult Cancel(int packageId)
+    {
+        // Eager load status and include tracking
+        var package = _projectDbContext.Packages
+            .Include(p => p.DeliveryStatus)
+            .FirstOrDefault(p => p.Id == packageId);
+
+        if (package != null)
+        {
+            // Get status ID safely
+            var failedStatus = _projectDbContext.DeliveryStatuses
+                .FirstOrDefault(s => s.Name == DeliveryStatusEnum.PaymentFailed.ToString());
+
+            if (failedStatus != null)
+            {
+                package.DeliveryStatusId = failedStatus.Id;
+                try
+                {
+                    _projectDbContext.SaveChanges();
+                }
+                catch (Exception ex)
+                {
+                    // Log error but still show cancellation page
+                    Console.WriteLine($"Error updating status: {ex.Message}");
+                }
+            }
+        }
+
+        return View("~/Views/Delivery/PaymentCancel.cshtml", package);
+    }
+
+    [HttpGet("check-statuses")]
+    public IActionResult CheckStatuses()
+    {
+        var statuses = _projectDbContext.DeliveryStatuses.ToList();
+        return Json(statuses); // Returns JSON directly
+    }
+
+    private string GenerateTrackingNumber()
+    {
+        return Guid.NewGuid().ToString("N").Substring(0, 12).ToUpper();
     }
 
     public class CheckoutRequest
@@ -178,7 +239,7 @@ public class PaymentController : Controller
         public long Amount { get; set; }
     }
 
-    [HttpGet("Success")]
+    /*[HttpGet("Success")]
     public IActionResult Success(int packageId)
     {
         var package = _projectDbContext.Packages
@@ -188,6 +249,7 @@ public class PaymentController : Controller
 
         return View(package); // Pass package to view
     }
+    */
 
 
 }

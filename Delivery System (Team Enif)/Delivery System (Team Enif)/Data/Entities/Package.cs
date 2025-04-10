@@ -23,5 +23,14 @@ namespace Delivery_System__Team_Enif_.Data.Entities
         public required DateTime DeliveryDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public required ApplicationUser CreatedBy { get; set; }
+        public string TrackingNumber { get; set; }
+        public Package()
+        {
+            TrackingNumber = GenerateTrackingNumber();
+        }
+        private static string GenerateTrackingNumber()
+        {
+            return Guid.NewGuid().ToString("N")[..12].ToUpper();
+        }
     }
 }

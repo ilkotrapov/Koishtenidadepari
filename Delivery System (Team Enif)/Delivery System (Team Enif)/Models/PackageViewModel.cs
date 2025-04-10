@@ -8,7 +8,8 @@ public enum DeliveryStatusEnum
 {
     Pending = 1,
     Active = 2,
-    Completed = 3
+    Completed = 3,
+    PaymentFailed = 4
 }
 
 public enum DeliveryTypeEnum

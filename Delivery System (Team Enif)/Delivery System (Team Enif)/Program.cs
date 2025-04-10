@@ -47,6 +47,8 @@ public class Program
         builder.Services.AddControllersWithViews();
     }
 
+
+
     public static void ConfigureApp(WebApplication app)
     {
         // Configure the HTTP request pipeline.
@@ -77,6 +79,14 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         ConfigureServices(builder);
+
+        /*if (builder.Environment.IsDevelopment())
+        {
+            // Allow invalid certificates for local testing
+            HttpClientHandler.ServerCertificateCustomValidationCallback =
+                (message, cert, chain, errors) => true;
+        }
+        */
 
         var app = builder.Build();
         ConfigureApp(app);

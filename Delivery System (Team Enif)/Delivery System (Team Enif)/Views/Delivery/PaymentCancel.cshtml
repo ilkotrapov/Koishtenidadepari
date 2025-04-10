@@ -1,5 +1,40 @@
-﻿@{
-    ViewData["Title"] = "Payment Cancelled //add appropriate background";
+﻿@using Delivery_System__Team_Enif_.Data.Entities
+@model Package
+@{
+    ViewData["Title"] = "Payment Cancelled";
+    var bgStyle = "background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url('/images/cancel-bg.jpg') center/cover;";
 }
-<h1>Payment Cancelled</h1>
-<a href="/request-package-delivery" class="btn btn-primary">Back to Order Page</a>
+
+<div class="min-vh-100 d-flex align-items-center" style="@bgStyle">
+    <div class="container text-center">
+        <div class="card shadow-lg mx-auto" style="max-width: 600px;">
+            <div class="card-body py-5">
+                <i class="fas fa-times-circle fa-5x text-danger mb-4"></i>
+                <h1 class="display-4 text-danger mb-3">Payment Cancelled</h1>
+
+                @if (Model != null)
+                {
+                    <div class="alert alert-warning mt-4">
+                        <h4>Package #@Model.Id</h4>
+                        @if (!string.IsNullOrEmpty(Model.TrackingNumber))
+                        {
+                            <p class="mb-1">Tracking Number: @Model.TrackingNumber</p>
+                        }
+                        <p class="mb-0 text-muted">Current Status: @Model.DeliveryStatus?.Name</p>
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <a asp-controller="Package" asp-action="Create"
+                       class="btn btn-primary btn-lg mr-3">
+                        <i class="fas fa-redo-alt"></i> Try Again
+                    </a>
+                    <a asp-controller="Home" asp-action="Index"
+                       class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-home"></i> Return Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

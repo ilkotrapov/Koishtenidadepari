@@ -1,5 +1,28 @@
-﻿@{
-    ViewData["Title"] = "Payment Successful, your package number is: //generate package number// + //add appropriate background//";
+﻿@using Delivery_System__Team_Enif_.Data.Entities
+@model Package
+
+@{
+    ViewData["Title"] = "Payment Successful";
+    Layout = "_Layout"; // Ensure proper layout
 }
-<h1>Payment Successful!</h1>
-<a href="/request-package-delivery" class="btn btn-primary">Back to Order Page</a>
+
+<div class="container text-center mt-5">
+    <div class="card shadow">
+        <div class="card-body">
+            <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+            <h2>Payment Successful!</h2>
+            <div class="alert alert-info mt-4">
+                <h4>Your Tracking Number:</h4>
+                <div class="display-4">@Model.TrackingNumber</div>
+                <small class="text-muted">Package ID: @Model.Id</small>
+            </div>
+
+            <div class="mt-4">
+                <a href="/Package/Track/@Model.TrackingNumber"
+                   class="btn btn-primary btn-lg">
+                    Track Your Package
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -222,20 +222,16 @@ namespace Delivery_System__Team_Enif_.Controllers
         }
         */
 
-        [HttpGet("track/{trackingNumber}")]
-        public async Task<IActionResult> TrackPackage(int trackingNumber)
+        [HttpGet("Track/{trackingNumber}")]
+        public async Task<IActionResult> TrackPackage(string trackingNumber)
         {
             var package = await _projectDbContext.Packages
                 .Include(p => p.DeliveryStatus)
-                .Include(p => p.CreatedBy)
-                .FirstOrDefaultAsync(p => p.Id == trackingNumber);
+                .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber);
 
-            if (package == null)
-            {
-                return NotFound("Package not found.");
-            }
+            if (package == null) return NotFound();
 
-            return View("Track", package); // Return the view with package data
+            return View("Track", package);
         }
 
         [HttpPut("update/{id}")]
