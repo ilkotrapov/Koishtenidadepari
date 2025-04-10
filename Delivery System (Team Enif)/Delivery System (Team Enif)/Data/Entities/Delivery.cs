@@ -1,37 +1,46 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
+using System.ComponentModel.DataAnnotations.Schema;
 using Delivery_System__Team_Enif_.Models;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations.Schema;
-using Delivery_System__Team_Enif_.Models; // where ApplicationUser lives
-
 
 namespace Delivery_System__Team_Enif_.Data.Entities
 {
-    public class Delivery : BaseEntity
+    public class Delivery
     {
+        [Key]
         public int Id { get; set; }
+
+        [Required]
         public int PackageId { get; set; }
+
+        [Required]
         public string CourierId { get; set; }
 
-        [ForeignKey("CourierId")]
-        public ApplicationUser Courier { get; set; } // <-- navigation property
+        [ForeignKey(nameof(CourierId))]
+        public ApplicationUser Courier { get; set; }
 
-        public required DateTime PickupTime { get; set; }
-        public required DateTime DeliveryTime { get; set; }
+        [Required]
+        public DateTime PickupTime { get; set; }
 
+        [Required]
+        public DateTime DeliveryTime { get; set; }
+
+        [Required]
         public int DeliveryOptionId { get; set; }
-        public DeliveryOption? DeliveryOption { get; set; }
 
+        [ForeignKey(nameof(DeliveryOptionId))]
+        public DeliveryOption DeliveryOption { get; set; }
+
+        [Required]
         public int DeliveryTypeId { get; set; }
-        public DeliveryType? DeliveryType { get; set; }
 
+        [ForeignKey(nameof(DeliveryTypeId))]
+        public DeliveryType DeliveryType { get; set; }
+
+        [Required]
         public int DeliveryStatusId { get; set; }
-        public DeliveryStatus? DeliveryStatus { get; set; }
 
-        public DateTime? DeliveryDate { get; set; }
+        [ForeignKey(nameof(DeliveryStatusId))]
+        public DeliveryStatus DeliveryStatus { get; set; }
     }
-
 }

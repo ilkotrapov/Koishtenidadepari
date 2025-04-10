@@ -41,145 +41,79 @@ namespace Delivery_System__Team_Enif_.Controllers
             return View(viewModel);
         }
 
-
-
         // GET: Delivery/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var delivery = await _context.Deliveries
+                .Include(d => d.DeliveryOption)
+                .Include(d => d.DeliveryType)
+                .Include(d => d.DeliveryStatus)
+                .Include(d => d.Courier)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (delivery == null)
-            {
-                return NotFound();
-            }
 
-            return View(delivery);
+            if (delivery == null)
+                return NotFound();
+
+            var viewModel = new DeliveryViewModel
+            {
+                Id = delivery.Id,
+                PackageId = delivery.PackageId,
+                CourierId = delivery.CourierId,
+                Courier = delivery.Courier,
+                CourierName = delivery.Courier?.Name,
+                PickupTime = delivery.PickupTime,
+                DeliveryTime = delivery.DeliveryTime,
+                DeliveryStatus = delivery.DeliveryStatus,
+                DeliveryStatusId = delivery.DeliveryStatusId,
+                DeliveryOption = delivery.DeliveryOption,
+                DeliveryOptionId = delivery.DeliveryOptionId,
+                DeliveryType = delivery.DeliveryType,
+                DeliveryTypeId = delivery.DeliveryTypeId
+            };
+
+            return View(viewModel);
         }
 
         // GET: Delivery/Create
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            var allUsers = await _userManager.Users.ToListAsync();
-            var couriers = new List<ApplicationUser>();
-
-            foreach (var user in allUsers)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Courier"))
-                {
-                    couriers.Add(user);
-                }
-            }
-
-            ViewBag.CourierId = new SelectList(couriers, "Id", "Name");
-
-            ViewBag.DeliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
-                .Cast<DeliveryOptionEnum>()
-                .Select(e => new SelectListItem
-                {
-                    Value = ((int)e).ToString(),
-                    Text = e.ToString().Replace("_", " ")
-                }).ToList();
-
-            ViewBag.DeliveryStatuses = Enum.GetValues(typeof(DeliveryStatusEnum))
-                .Cast<DeliveryStatusEnum>()
-                .Select(e => new SelectListItem
-                {
-                    Value = ((int)e).ToString(),
-                    Text = e.ToString().Replace("_", " ")
-                }).ToList();
-
-            ViewBag.DeliveryTypes = Enum.GetValues(typeof(DeliveryTypeEnum))
-                .Cast<DeliveryTypeEnum>()
-                .Select(e => new SelectListItem
-                {
-                    Value = ((int)e).ToString(),
-                    Text = e.ToString().Replace("_", " ")
-                }).ToList();
-
-
-            return View();
+            var model = new DeliveryViewModel();
+            await PopulateDropdowns(model);
+            return View(model);
         }
 
-
         // POST: Delivery/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(DeliveryViewModel deliveryViewModel)
         {
+            Console.WriteLine("🚀 POST: Create hit");
+
             if (ModelState.IsValid)
             {
                 var delivery = new Delivery
                 {
-                    Id = deliveryViewModel.Id,
                     PackageId = deliveryViewModel.PackageId,
                     CourierId = deliveryViewModel.CourierId,
                     PickupTime = deliveryViewModel.PickupTime,
                     DeliveryTime = deliveryViewModel.DeliveryTime,
+                    DeliveryStatusId = deliveryViewModel.DeliveryStatusId,
                     DeliveryOptionId = deliveryViewModel.DeliveryOptionId,
-                    DeliveryTypeId = deliveryViewModel.DeliveryTypeId,
-                    DeliveryStatusId = deliveryViewModel.DeliveryStatusId
+                    DeliveryTypeId = deliveryViewModel.DeliveryTypeId
                 };
 
-                Console.WriteLine("Submitted DeliveryStatusId: " + deliveryViewModel.DeliveryStatusId);
                 _context.Deliveries.Add(delivery);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
 
-            var allUsers = await _userManager.Users.ToListAsync();
-            var couriers = new List<ApplicationUser>();
-
-            foreach (var user in allUsers)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Courier"))
-                {
-                    couriers.Add(user);
-                }
-            }
-
-            ViewBag.CourierId = new SelectList(couriers, "Id", "Name");
-
-            ViewBag.DeliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
-                .Cast<DeliveryOptionEnum>()
-                .Select(e => new SelectListItem
-                {
-                    Value = ((int)e).ToString(),
-                    Text = e.ToString().Replace("_", " ")
-                }).ToList();
-
-            ViewBag.DeliveryStatuses = Enum.GetValues(typeof(DeliveryStatusEnum))
-                .Cast<DeliveryStatusEnum>()
-                .Select(e => new SelectListItem
-                {
-                    Value = ((int)e).ToString(),
-                    Text = e.ToString().Replace("_", " ")
-                }).ToList();
-
-            ViewBag.DeliveryTypes = Enum.GetValues(typeof(DeliveryTypeEnum))
-                .Cast<DeliveryTypeEnum>()
-                .Select(e => new SelectListItem
-                {
-                    Value = ((int)e).ToString(),
-                    Text = e.ToString().Replace("_", " ")
-                }).ToList();
-
-
+            await PopulateDropdowns(deliveryViewModel);
             return View(deliveryViewModel);
         }
-
-
-
 
         // GET: Delivery/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -187,97 +121,104 @@ namespace Delivery_System__Team_Enif_.Controllers
             if (id == null)
                 return NotFound();
 
-            var delivery = await _context.Deliveries.FindAsync(id);
+            var delivery = await _context.Deliveries
+                .Include(d => d.Courier)
+                .FirstOrDefaultAsync(d => d.Id == id);
+
             if (delivery == null)
                 return NotFound();
 
-            var couriers = await _context.Users.ToListAsync();
-            ViewBag.CourierId = new SelectList(couriers, "Id", "Name", delivery.CourierId);
+            var viewModel = new DeliveryViewModel
+            {
+                Id = delivery.Id,
+                PackageId = delivery.PackageId,
+                CourierId = delivery.CourierId,
+                CourierName = delivery.Courier?.Name,
+                PickupTime = delivery.PickupTime,
+                DeliveryTime = delivery.DeliveryTime,
+                DeliveryStatusId = delivery.DeliveryStatusId,
+                DeliveryOptionId = delivery.DeliveryOptionId,
+                DeliveryTypeId = delivery.DeliveryTypeId
+            };
 
-            return View(delivery);
+            await PopulateDropdowns(viewModel);
+            return View(viewModel);
         }
 
         // POST: Delivery/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,PackageId,CourierId,PickupTime,DeliveryTime,DeliveryStatus")] DeliveryViewModel delivery)
+        public async Task<IActionResult> Edit(int id, DeliveryViewModel viewModel)
         {
-            if (id != delivery.Id)
-            {
+            if (id != viewModel.Id)
                 return NotFound();
-            }
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    var updatedDelivery = new Delivery
-                    {
-                        Id = delivery.Id,
-                        PackageId = delivery.PackageId,
-                        CourierId = delivery.CourierId,
-                        PickupTime = delivery.PickupTime,
-                        DeliveryTime = delivery.DeliveryTime,
-                        DeliveryStatus = delivery.DeliveryStatus,
-                        // Optional: If you’re using DeliveryOptionId
-                        DeliveryOptionId = delivery.DeliveryOptionId
-                    };
+                    var delivery = await _context.Deliveries.FindAsync(id);
+                    if (delivery == null)
+                        return NotFound();
 
-                    _context.Update(updatedDelivery);
+                    delivery.PackageId = viewModel.PackageId;
+                    delivery.CourierId = viewModel.CourierId;
+                    delivery.PickupTime = viewModel.PickupTime;
+                    delivery.DeliveryTime = viewModel.DeliveryTime;
+                    delivery.DeliveryStatusId = viewModel.DeliveryStatusId;
+                    delivery.DeliveryOptionId = viewModel.DeliveryOptionId;
+                    delivery.DeliveryTypeId = viewModel.DeliveryTypeId;
+
+                    _context.Update(delivery);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!DeliveryExists(delivery.Id))
-                    {
+                    if (!DeliveryExists(viewModel.Id))
                         return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    throw;
                 }
 
                 return RedirectToAction(nameof(Index));
             }
 
-            // 🧠 Rebuild the dropdown if validation fails
-            var allUsers = await _userManager.Users.ToListAsync();
-            var couriers = new List<ApplicationUser>();
-
-            foreach (var user in allUsers)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Contains("Courier"))
-                {
-                    couriers.Add(user);
-                }
-            }
-
-            ViewBag.CourierId = new SelectList(couriers, "Id", "Name", delivery.CourierId);
-
-            return View(delivery);
+            await PopulateDropdowns(viewModel);
+            return View(viewModel);
         }
-
 
         // GET: Delivery/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
             var delivery = await _context.Deliveries
+                .Include(d => d.DeliveryOption)
+                .Include(d => d.DeliveryType)
+                .Include(d => d.DeliveryStatus)
+                .Include(d => d.Courier)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (delivery == null)
-            {
-                return NotFound();
-            }
 
-            return View(delivery);
+            if (delivery == null)
+                return NotFound();
+
+            var viewModel = new DeliveryViewModel
+            {
+                Id = delivery.Id,
+                PackageId = delivery.PackageId,
+                PickupTime = delivery.PickupTime,
+                DeliveryTime = delivery.DeliveryTime,
+                DeliveryStatus = delivery.DeliveryStatus,
+                DeliveryStatusId = delivery.DeliveryStatusId,
+                DeliveryOption = delivery.DeliveryOption,
+                DeliveryOptionId = delivery.DeliveryOptionId,
+                DeliveryType = delivery.DeliveryType,
+                DeliveryTypeId = delivery.DeliveryTypeId,
+                CourierId = delivery.CourierId,
+                CourierName = delivery.Courier?.Name
+            };
+
+            return View(viewModel);
         }
 
         // POST: Delivery/Delete/5
@@ -289,9 +230,9 @@ namespace Delivery_System__Team_Enif_.Controllers
             if (delivery != null)
             {
                 _context.Deliveries.Remove(delivery);
+                await _context.SaveChangesAsync();
             }
 
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
@@ -300,5 +241,43 @@ namespace Delivery_System__Team_Enif_.Controllers
             return _context.Deliveries.Any(e => e.Id == id);
         }
 
+        private async Task PopulateDropdowns(DeliveryViewModel model)
+        {
+            var couriers = await _userManager.Users.ToListAsync();
+            var courierList = new List<ApplicationUser>();
+
+            foreach (var user in couriers)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles.Contains("Courier"))
+                    courierList.Add(user);
+            }
+
+            ViewBag.CourierId = new SelectList(courierList, "Id", "Name", model.CourierId);
+
+            ViewBag.DeliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
+                .Cast<DeliveryOptionEnum>()
+                .Select(e => new SelectListItem
+                {
+                    Value = ((int)e).ToString(),
+                    Text = e.ToString().Replace("_", " ")
+                }).ToList();
+
+            ViewBag.DeliveryStatuses = Enum.GetValues(typeof(DeliveryStatusEnum))
+                .Cast<DeliveryStatusEnum>()
+                .Select(e => new SelectListItem
+                {
+                    Value = ((int)e).ToString(),
+                    Text = e.ToString().Replace("_", " ")
+                }).ToList();
+
+            ViewBag.DeliveryTypes = Enum.GetValues(typeof(DeliveryTypeEnum))
+                .Cast<DeliveryTypeEnum>()
+                .Select(e => new SelectListItem
+                {
+                    Value = ((int)e).ToString(),
+                    Text = e.ToString().Replace("_", " ")
+                }).ToList();
+        }
     }
 }

@@ -4,6 +4,8 @@
     ViewData["Title"] = "Create Package";
     var isOfficeAssistant = User.IsInRole("Office assistant");
     var isUser = User.IsInRole("User");
+    var isAdmin = User.IsInRole("isAdmin");
+
     // if (user is Admin or Office assistant) removed.
 
 
@@ -91,15 +93,14 @@
 
 }
 
-@if (isOfficeAssistant || isUser)
-{
+@{
     <div class="card mb-4 shadow-sm">
         <div class="card-header">
             <h4 class="display-4 text-center text-primary">New Package</h4>
         </div>
         <div class="row card-body">
             <div class="col-md-8 offset-md-2">
-                <form asp-controller="Package" asp-action="CreateConfirm" method="post">
+                <form asp-controller="Package" asp-action="Create" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                     <div class="form-section">
@@ -159,13 +160,10 @@
                     <div class="form-section">
                         <div class="form-group">
                             <label asp-for="OfficeId" class="control-label">Office</label>
-                            @if (isUser)
-                            {
-                                @Html.DropDownListFor(m => m.OfficeId, new SelectList(Model.AvailableOffices, "Id", "Name", Model.OfficeId))
-                            } else
-                            {
-                                <input type="text" value="@Model.AvailableOffices.FirstOrDefault(o => o.Id == Model.OfficeId)?.Name" readonly />
-                            }
+                            @Html.DropDownListFor(m => m.OfficeId,
+                                            new SelectList(Model.AvailableOffices, "Id", "Name", Model.OfficeId),
+                                            "Select Office",
+                                            new { @class = "form-control" })
                             <span asp-validation-for="OfficeId" class="text-danger"></span>
                         </div>
 
@@ -185,7 +183,7 @@
                     <div class="form-group">
                         <label asp-for="DeliveryDate" class="control-label" ></label>
                         <input asp-for="DeliveryDate" class="form-control" />
-                        <span a""sp-validation-for="DeliveryDate" class="text-danger"></span>
+                        <span asp-validation-for="DeliveryDate" class="text-danger"></span>
                     </div>
 
                     <div class="card-footer text-center">
@@ -202,6 +200,6 @@
 
 @section Scripts {
     @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+                await Html.RenderPartialAsync("_ValidationScriptsPartial");
+ }
 }

@@ -4,44 +4,49 @@
     ViewData["Title"] = "Create New Delivery";
 }
 
-<h1>Create</h1>
+<h1>Create New Delivery</h1>
 
-<h4>Delivery</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
                 <label asp-for="PackageId" class="control-label"></label>
                 <input asp-for="PackageId" class="form-control" />
                 <span asp-validation-for="PackageId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="CourierId" class="control-label"></label>
-                <select asp-for="CourierId" class ="form-control" asp-items="ViewBag.CourierId"></select>
+                <select asp-for="CourierId" asp-items="ViewBag.CourierId" class="form-control"></select>
                 <span asp-validation-for="CourierId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="PickupTime" class="control-label"></label>
-                <input asp-for="PickupTime" class="form-control" />
+                <input asp-for="PickupTime" class="form-control" type="datetime-local" />
                 <span asp-validation-for="PickupTime" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="DeliveryTime" class="control-label"></label>
-                <input asp-for="DeliveryTime" class="form-control" />
+                <input asp-for="DeliveryTime" class="form-control" type="datetime-local" />
                 <span asp-validation-for="DeliveryTime" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="DeliveryOptionId" class="control-label"></label>
-                <select asp-for="DeliveryOptionId" class="form-control" asp-items="ViewBag.DeliveryOptions">
+                <select asp-for="DeliveryOptionId" asp-items="ViewBag.DeliveryOptions" class="form-control">
                     <option value="">-- Select Delivery Option --</option>
                 </select>
                 <span asp-validation-for="DeliveryOptionId" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="DeliveryTypeId" class="control-label"></label>
-                <select asp-for="DeliveryTypeId" class="form-control" asp-items="ViewBag.DeliveryTypes">
+                <select asp-for="DeliveryTypeId" asp-items="ViewBag.DeliveryTypes" class="form-control">
                     <option value="">-- Select Delivery Type --</option>
                 </select>
                 <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
@@ -49,22 +54,22 @@
 
             <div class="form-group">
                 <label asp-for="DeliveryStatusId" class="control-label"></label>
-                <select asp-for="DeliveryStatusId" class="form-control" asp-items="ViewBag.DeliveryStatuses">
+                <select asp-for="DeliveryStatusId" asp-items="ViewBag.DeliveryStatuses" class="form-control">
                     <option value="">-- Select Delivery Status --</option>
                 </select>
                 <span asp-validation-for="DeliveryStatusId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Create</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

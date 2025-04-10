@@ -17,11 +17,11 @@ namespace Delivery_System__Team_Enif_.Data.Entities
         public Office? Office { get; set; }
 
         public int DeliveryOptionId { get; set; }
-        public required DeliveryOption DeliveryOption { get; set; }
+        public DeliveryOption? DeliveryOption { get; set; }
         public int DeliveryTypeId { get; set; }
-        public required DeliveryType DeliveryType { get; set; }
+        public DeliveryType? DeliveryType { get; set; }
         public int DeliveryStatusId { get; set; }
-        public required DeliveryStatus DeliveryStatus { get; set; } 
+        public DeliveryStatus? DeliveryStatus { get; set; } 
         public required DateTime DeliveryDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public required ApplicationUser CreatedBy { get; set; }

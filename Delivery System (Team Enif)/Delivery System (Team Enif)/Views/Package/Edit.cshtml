@@ -1,4 +1,5 @@
-﻿@model PackageViewModel
+﻿@using Delivery_System__Team_Enif_.Data.Entities
+@model PackageViewModel
 
 @{
     ViewData["Title"] = "Edit Package";
@@ -13,10 +14,10 @@
         <div class="card-header">
             <h4 class="display-4 text-center text-primary">Edit Package</h4>
         </div>
-   
+
         <div class="row card-body">
             <div class="col-md-8 offset-md-2">
-                <form asp-controller="Package" asp-action="Edit" asp-action="post">
+                <form asp-controller="Package" asp-action="Edit" method="post">
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <input type="hidden" asp-for="Id" />
 
@@ -32,7 +33,9 @@
                     </div>
 
                     <div class="form-group">
-                        @Html.DropDownListFor(m => m.DeliveryStatusId, new SelectList(Model.DeliveryStatuses, "Value", "Text", Model.DeliveryStatusId), new { @disabled = "disabled", @class = "form-control" })
+                        @Html.DropDownListFor(m => m.DeliveryStatusId,
+                                 new SelectList(Model.DeliveryStatuses ?? Enumerable.Empty<SelectListItem>(), "Value", "Text", Model.DeliveryStatusId),
+                                 new { @disabled = "disabled", @class = "form-control" })
                         <span asp-validation-for="DeliveryStatusId" class="text-danger"></span>
                     </div>
 
@@ -65,7 +68,7 @@
                     <div class="form-section">
                         <div class="form-group">
                             <label asp-for="Length" class="control-label"></label>
-                            <input type="number" asp-for="Length" class="form-control"oninput="calculatePackageSize();" />
+                            <input type="number" asp-for="Length" class="form-control" oninput="calculatePackageSize();" />
                             <span asp-validation-for="Length" class="text-danger"></span>
                         </div>
                         <div class="form-group">
@@ -95,26 +98,38 @@
                             <label asp-for="OfficeId" class="control-label">Office</label>
                             @if (isUser)
                             {
-                                @Html.DropDownListFor(m => m.OfficeId, new SelectList(Model.AvailableOffices, "Id", "Name", Model.OfficeId))
-                            } else
+
+                                @Html.DropDownListFor(m => m.OfficeId, new SelectList(Model.AvailableOffices ?? Enumerable.Empty<Office>(), "Id", "Name", Model.OfficeId), new { @class = "form-control" })
+
+                            }
+                            else
                             {
-                                <input type="text" value="@Model.AvailableOffices.FirstOrDefault(o => o.Id == Model.OfficeId)?.Name" readonly />
+                                <input type="text"
+                                       value="@Model.AvailableOffices?.FirstOrDefault(o => o.Id == Model.OfficeId)?.Name"
+                                       readonly class="form-control" />
                             }
                             <span asp-validation-for="OfficeId" class="text-danger"></span>
                         </div>
 
                         <div class="form-group">
-                            <label asp-for="DeliveryOptionId" class="control-label" >Delivery Option</label>
-                            @Html.DropDownListFor(m => m.DeliveryOptionId, new SelectList(Model.DeliveryOptions, "Value", "Text", Model.DeliveryOptionId), new { @class = "form-control" })
+                            <label asp-for="DeliveryOptionId" class="control-label">Delivery Option</label>
+                            @Html.DropDownListFor(m => m.DeliveryOptionId,
+                                     new SelectList(Model.DeliveryOptions ?? Enumerable.Empty<SelectListItem>(), "Value", "Text", Model.DeliveryOptionId),
+                                     "-- Select Delivery Option --",
+                                     new { @class = "form-control" })
                             <span asp-validation-for="DeliveryOptionId" class="text-danger"></span>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label asp-for="DeliveryTypeId" class="control-label" >Delivery Type</label>
-                        @Html.DropDownListFor(m => m.DeliveryTypeId, new SelectList(Model.DeliveryTypes, "Value", "Text", Model.DeliveryTypeId))
+                        <label asp-for="DeliveryTypeId" class="control-label">Delivery Type</label>
+                        @Html.DropDownListFor(m => m.DeliveryTypeId,
+                                 new SelectList(Model.DeliveryTypes ?? Enumerable.Empty<SelectListItem>(), "Value", "Text", Model.DeliveryTypeId),
+                                 "-- Select Delivery Type --",
+                                 new { @class = "form-control" })
                         <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
                     </div>
+
                     <div class="form-group">
                         <label asp-for="DeliveryDate" class="control-label"></label>
                         <input asp-for="DeliveryDate" class="form-control" />
@@ -124,7 +139,7 @@
                     <div class="card-footer text-center">
                         <input type="submit" value="Save" class="btn btn-primary" />
                         <a asp-action="Index" class="btn btn-secondary">
-                            <i class="fas fa-list"></i>Cancel
+                            <i class="fas fa-list"></i> Cancel
                         </a>
                     </div>
                 </form>
@@ -134,5 +149,7 @@
 }
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

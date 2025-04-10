@@ -39,7 +39,7 @@ namespace Delivery_System__Team_Enif_.Controllers
 
             if (User.IsInRole("User"))
             {
-                packages = _projectDbContext.Packages
+                packages = await _projectDbContext.Packages
                     .Include(p => p.CreatedBy)
                     .Include(p => p.Office)
                     .Include(p => p.DeliveryOption)
@@ -48,7 +48,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                     .Where(p => p.CreatedBy.Id == currentUser.Id)
                     .OrderBy(p => p.CreatedDate)
                     .ThenBy(p => p.DeliveryTypeId == (int)DeliveryTypeEnum.Express ? 0 : 1)
-                    .ToList();
+                    .ToListAsync();
             }
             else
             {
@@ -97,110 +97,112 @@ namespace Delivery_System__Team_Enif_.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ApplicationUser currentUser = await GetCurrentUserAsync();
+            var currentUser = await GetCurrentUserAsync();
             if (currentUser == null)
-            {
-                RedirectToAction("Login", "Account");
-            }
+                return RedirectToAction("Login", "Account");
 
-            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
-            if (!isUserRolePermit)
-            {
+            if (!await IsUserRolesPermitAsync(currentUser))
                 return RedirectToAction("AccessDenied", "Account");
-            }
 
-            IQueryable<Office> offices = _projectDbContext.Offices.Include(o => o.Employees);
-            int officeIdAssignedToUser = -1;
+            var officesQuery = _projectDbContext.Offices.AsQueryable();
+
+            // For office assistant: limit to assigned office
             if (User.IsInRole("Office assistant"))
             {
-                var officeAssignedToUser = await _projectDbContext.Offices
-                                            .Where(o => o.Employees.Any(e => e.Id == currentUser.Id))
-                                            .FirstOrDefaultAsync();
+                var assignedOffice = await _projectDbContext.Offices
+                    .FirstOrDefaultAsync(o => o.Employees.Any(e => e.Id == currentUser.Id));
 
-                if (officeAssignedToUser != null)
+                if (assignedOffice == null)
                 {
-                    offices = offices.Where(o => o.Id == officeAssignedToUser.Id);
-                    officeIdAssignedToUser = officeAssignedToUser.Id;
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "No office assigned to current Office Assistance");
+                    ModelState.AddModelError("", "No office assigned.");
                     return RedirectToAction("Index");
                 }
+
+                officesQuery = officesQuery.Where(o => o.Id == assignedOffice.Id);
             }
-            
-            var model = new PackageViewModel()
+
+            var availableOffices = await officesQuery.ToListAsync();
+
+            if (!availableOffices.Any())
             {
-                DeliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
-                                    .Cast<DeliveryOptionEnum>()
-                                    .Select(o => new SelectListItem
-                                    {
-                                        Value = ((int)o).ToString(),
-                                        Text = o.ToString(),
-                                        Selected = o == DeliveryOptionEnum.PickUp_DropOffLocalOffice
-                                    }
-                                    ).ToList(),
-                DeliveryTypes = Enum.GetValues(typeof(DeliveryTypeEnum))
-                                    .Cast<DeliveryTypeEnum>()
-                                    .Select(t => new SelectListItem
-                                    {
-                                        Value = ((int)t).ToString(),
-                                        Text = t.ToString(),
-                                        Selected = t == DeliveryTypeEnum.Standard
-                                    }
-                                    ).ToList(),
-                DeliveryStatuses = Enum.GetValues(typeof(DeliveryStatusEnum))
-                                    .Cast<DeliveryStatusEnum>()
-                                    .Select(s => new SelectListItem
-                                    {
-                                        Value = ((int)s).ToString(),
-                                        Text = s.ToString(),
-                                        Selected = s == DeliveryStatusEnum.Pending
-                                    }
-                                    ).ToList(),
+                ModelState.AddModelError("", "No available offices.");
+                return RedirectToAction("Index");
+            }
+
+            var model = new PackageViewModel
+            {
+                SenderName = currentUser.Name,
+                SenderAddress = currentUser.Address,
                 DeliveryDate = DateTime.Now,
-                AvailableOffices = await offices.ToListAsync()
+                AvailableOffices = availableOffices,
+                DeliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
+                    .Cast<DeliveryOptionEnum>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = ((int)e).ToString(),
+                        Text = e.ToString()
+                    }),
+
+                DeliveryTypes = Enum.GetValues(typeof(DeliveryTypeEnum))
+                    .Cast<DeliveryTypeEnum>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = ((int)e).ToString(),
+                        Text = e.ToString()
+                    }),
+
+                DeliveryStatuses = Enum.GetValues(typeof(DeliveryStatusEnum))
+                    .Cast<DeliveryStatusEnum>()
+                    .Select(e => new SelectListItem
+                    {
+                        Value = ((int)e).ToString(),
+                        Text = e.ToString()
+                    })
             };
-
-            if (User.IsInRole("User"))
-            {
-                model.SenderName = currentUser.Name;
-                model.SenderAddress = currentUser.Address;
-            }
-
-            if (User.IsInRole("Office assistant") && officeIdAssignedToUser != -1)
-            {
-                model.OfficeId = officeIdAssignedToUser;
-            }
 
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateConfirm(Package package)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(PackageViewModel viewModel)
         {
             ApplicationUser currentUser = await GetCurrentUserAsync();
-            if (currentUser == null)
-            {
-                RedirectToAction("Login", "Account");
-            }
+            if (currentUser == null) return RedirectToAction("Login", "Account");
 
-            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
-            if (!isUserRolePermit)
-            {
+            if (!await IsUserRolesPermitAsync(currentUser))
                 return RedirectToAction("AccessDenied", "Account");
-            }
 
-            if (User.IsInRole("Office assistant"))
+            // 🛡 Validate OfficeId
+            var officeExists = await _projectDbContext.Offices.AnyAsync(o => o.Id == viewModel.OfficeId);
+            if (!officeExists)
             {
-                package.OfficeId = currentUser.OfficeId;
+                ModelState.AddModelError("OfficeId", "Selected Office does not exist.");
+                await PopulatePackageDropdowns(viewModel);
+                return View(viewModel);
             }
 
-            package.CreatedBy = currentUser;
-            package.CreatedDate = DateTime.Now;
-            package.DeliveryStatusId = (int)DeliveryStatusEnum.Pending;
-            _projectDbContext.Add(package);
-            _projectDbContext.SaveChanges();
+            var package = new Package
+            {
+                SenderName = viewModel.SenderName,
+                SenderAddress = viewModel.SenderAddress,
+                RecipientName = viewModel.RecipientName,
+                RecipientAddress = viewModel.RecipientAddress,
+                Length = viewModel.Length,
+                Width = viewModel.Width,
+                Hight = viewModel.Hight,
+                Weight = viewModel.Weight,
+                OfficeId = viewModel.OfficeId,
+                DeliveryOptionId = viewModel.DeliveryOptionId,
+                DeliveryTypeId = viewModel.DeliveryTypeId,
+                DeliveryStatusId = (int)DeliveryStatusEnum.Pending,
+                DeliveryDate = viewModel.DeliveryDate,
+                CreatedDate = DateTime.Now,
+                CreatedBy = currentUser
+            };
+
+            _projectDbContext.Packages.Add(package);
+            await _projectDbContext.SaveChangesAsync();
 
             return RedirectToAction("Index");
         }
@@ -442,6 +444,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 viewModel.AvailableOffices = await officeQuery.ToListAsync();
             }
 
+            await PopulatePackageDropdowns(viewModel);
             return View(viewModel);
         }
 
@@ -450,13 +453,14 @@ namespace Delivery_System__Team_Enif_.Controllers
         {
             if (!ModelState.IsValid)
             {
+                await PopulatePackageDropdowns(viewModel);
                 return View(viewModel);
             }
 
             ApplicationUser currentUser = await GetCurrentUserAsync();
             if (currentUser == null)
             {
-                RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Account");
             }
 
             bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
@@ -466,9 +470,9 @@ namespace Delivery_System__Team_Enif_.Controllers
             }
 
             var package = await _projectDbContext.Packages
-                                .Include(p => p.CreatedBy)
-                                .Include(p => p.Office)
-                                .FirstOrDefaultAsync(m => m.Id == viewModel.Id);
+                .Include(p => p.CreatedBy)
+                .Include(p => p.Office)
+                .FirstOrDefaultAsync(m => m.Id == viewModel.Id);
 
             if (package == null)
             {
@@ -490,25 +494,29 @@ namespace Delivery_System__Team_Enif_.Controllers
             package.Width = viewModel.Width;
             package.Hight = viewModel.Hight;
             package.Weight = viewModel.Weight;
-            package.OfficeId = viewModel.OfficeId;
-
-            var doe = _projectDbContext.DeliveryOptions.FirstOrDefault(s => s.Id == viewModel.DeliveryOptionId);
-            if (doe != null)
+            if (_projectDbContext.Offices.Any(o => o.Id == viewModel.OfficeId))
             {
-                package.DeliveryOptionId = doe.Id;
+                package.OfficeId = viewModel.OfficeId;
+            }
+            else
+            {
+                ModelState.AddModelError("OfficeId", "Selected Office is invalid.");
+                await PopulatePackageDropdowns(viewModel);
+                return View(viewModel);
             }
 
-            var dte = _projectDbContext.DeliveryOptions.FirstOrDefault(s => s.Id == viewModel.DeliveryTypeId);
-            if (dte != null)
-            {
-                package.DeliveryTypeId = dte.Id;
-            }
+
+            package.DeliveryOptionId = viewModel.DeliveryOptionId;
+            package.DeliveryTypeId = viewModel.DeliveryTypeId;
+            package.DeliveryStatusId = viewModel.DeliveryStatusId;
 
             package.DeliveryDate = viewModel.DeliveryDate;
 
             await _projectDbContext.SaveChangesAsync();
+            await PopulatePackageDropdowns(viewModel);
             return RedirectToAction("Index");
         }
+
 
 
         // GET: Packages/Delete/
@@ -658,5 +666,34 @@ namespace Delivery_System__Team_Enif_.Controllers
         {
             return User.IsInRole("Admin") || User.IsInRole("Office assistant") || User.IsInRole("User");
         }
+        private async Task PopulatePackageDropdowns(PackageViewModel model)
+        {
+            model.DeliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
+                .Cast<DeliveryOptionEnum>()
+                .Select(e => new SelectListItem
+                {
+                    Value = ((int)e).ToString(),
+                    Text = e.ToString()
+                });
+
+            model.DeliveryTypes = Enum.GetValues(typeof(DeliveryTypeEnum))
+                .Cast<DeliveryTypeEnum>()
+                .Select(e => new SelectListItem
+                {
+                    Value = ((int)e).ToString(),
+                    Text = e.ToString()
+                });
+
+            model.DeliveryStatuses = Enum.GetValues(typeof(DeliveryStatusEnum))
+                .Cast<DeliveryStatusEnum>()
+                .Select(e => new SelectListItem
+                {
+                    Value = ((int)e).ToString(),
+                    Text = e.ToString()
+                });
+
+            model.AvailableOffices = await _projectDbContext.Offices.ToListAsync();
+        }
+
     }
 }

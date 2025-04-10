@@ -1,30 +1,14 @@
-﻿using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using Delivery_System__Team_Enif_.Data.Entities;
+﻿using Delivery_System__Team_Enif_.Data.Entities;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
-
-public enum DeliveryStatusEnum
-{
-    Pending = 1,
-    Active = 2,
-    Completed = 3
-}
-
-public enum DeliveryTypeEnum
-{
-    Standard = 1,
-    Express = 2
-}
-
-public enum DeliveryOptionEnum
-{
-    DoorToDoor = 1,
-    PickUp_DropOffLocalOffice = 2
-}
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel;
 
 public class PackageViewModel
 {
+    [ValidateNever]
+    public IEnumerable<Office> AvailableOffices { get; set; } = new List<Office>();
+
     [ValidateNever]
     public IEnumerable<Package> Packages { get; set; }
 
@@ -49,26 +33,26 @@ public class PackageViewModel
 
     [DisplayName("Length (cm)")]
     [Required(ErrorMessage = "The Package Length field is required.")]
-    [Range(0, double.MaxValue, ErrorMessage = "The Package Length must be a positive number more than 0.")]
-    public decimal Length { get; set; } = 0;
+    [Range(0.01, double.MaxValue, ErrorMessage = "Length must be greater than 0.")]
+    public decimal Length { get; set; }
 
     [DisplayName("Width (cm)")]
     [Required(ErrorMessage = "The Package Width field is required.")]
-    [Range(0.01, double.MaxValue, ErrorMessage = "The Package Width must be a positive number more than 0.")]
-    public decimal Width { get; set; } = 0;
+    [Range(0.01, double.MaxValue, ErrorMessage = "Width must be greater than 0.")]
+    public decimal Width { get; set; }
 
-    [DisplayName("Hight (cm)")]
-    [Required(ErrorMessage = "The Package Hight field is required.")]
-    [Range(0.01, double.MaxValue, ErrorMessage = "The Package Hight must be a positive number more than 0.")]
-    public decimal Hight { get; set; } = 0;
+    [DisplayName("Height (cm)")]
+    [Required(ErrorMessage = "The Package Height field is required.")]
+    [Range(0.01, double.MaxValue, ErrorMessage = "Height must be greater than 0.")]
+    public decimal Hight { get; set; }
 
     [DisplayName("Package Size (cm³)")]
     public decimal PackageSize => Length * Width * Hight;
 
     [DisplayName("Weight (kg)")]
     [Required(ErrorMessage = "The Package Weight field is required.")]
-    [Range(0.01, double.MaxValue, ErrorMessage = "The Package Weight must be a positive number value more than 0")]
-    public decimal Weight { get; set; } = 0;
+    [Range(0.01, double.MaxValue, ErrorMessage = "Weight must be greater than 0.")]
+    public decimal Weight { get; set; }
 
     [DisplayName("Office")]
     [Required(ErrorMessage = "The Office field is required.")]
@@ -78,43 +62,37 @@ public class PackageViewModel
     [ValidateNever]
     public string OfficeSelected { get; set; }
 
-    [ValidateNever]
-    public IEnumerable<Office> AvailableOffices { get; set; }
-
     [DisplayName("Delivery Option")]
+    [Required]
     public int DeliveryOptionId { get; set; } = (int)DeliveryOptionEnum.PickUp_DropOffLocalOffice;
 
-    [DisplayName("Delivery Option")]
     [ValidateNever]
     public DeliveryOption DeliveryOption { get; set; }
 
-    [DisplayName("Delivery Option")]
     public DeliveryOptionEnum DeliveryOptionSelected { get; set; }
 
     [ValidateNever]
     public IEnumerable<SelectListItem> DeliveryOptions { get; set; }
 
     [DisplayName("Delivery Type")]
+    [Required]
     public int DeliveryTypeId { get; set; } = (int)DeliveryTypeEnum.Standard;
 
-    [DisplayName("Delivery Type")]
     [ValidateNever]
     public DeliveryType DeliveryType { get; set; }
 
-    [DisplayName("Delivery Type")]
     public DeliveryTypeEnum DeliveryTypeSelected { get; set; }
 
     [ValidateNever]
     public IEnumerable<SelectListItem> DeliveryTypes { get; set; }
 
     [DisplayName("Status")]
+    [Required]
     public int DeliveryStatusId { get; set; } = (int)DeliveryStatusEnum.Pending;
 
-    [DisplayName("Status")]
     [ValidateNever]
     public DeliveryStatus DeliveryStatus { get; set; }
 
-    [DisplayName("Status")]
     public DeliveryStatusEnum DeliveryStatusSelected { get; set; }
 
     [ValidateNever]
@@ -125,16 +103,17 @@ public class PackageViewModel
     [Required(ErrorMessage = "The Delivery date field is required.")]
     public DateTime DeliveryDate { get; set; }
 
-    [ValidateNever]
     [DisplayName("Created Date")]
+    [ValidateNever]
     public DateTime CreatedDate { get; set; }
 
     [ValidateNever]
     public string CreatedByUserId { get; set; }
 
-    [ValidateNever]
     [DisplayName("Created By")]
+    [ValidateNever]
     public string CreatedByUser { get; set; }
 
+    [ValidateNever]
     public string CurrentUserId { get; set; }
 }
