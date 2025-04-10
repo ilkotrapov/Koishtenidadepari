@@ -1,4 +1,8 @@
 ﻿using Delivery_System__Team_Enif_.Models.Stripe;
+using Delivery_System__Team_Enif_.Data.Entities;
+using Delivery_System__Team_Enif_.Data;
+using Delivery_System__Team_Enif_.Controllers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
 using Stripe.Checkout;
@@ -6,18 +10,34 @@ using Delivery_System__Team_Enif_.Models; // Import StripeSettings
 
 [ApiController]
 [Route("api/[controller]")]
-public class PaymentController : ControllerBase
+public class PaymentController : Controller
 {
+    private readonly ProjectDbContext _projectDbContext;
     private readonly StripeSettings _stripeSettings;
 
-    public PaymentController(StripeSettings stripeSettings)
+    public PaymentController(ProjectDbContext projectDbContext, IConfiguration configuration)
     {
-        _stripeSettings = stripeSettings;
+        _projectDbContext = projectDbContext ?? throw new ArgumentNullException(nameof(projectDbContext));
+
+        _stripeSettings = new StripeSettings
+        {
+            SecretKey = configuration["Stripe:SecretKey"],
+            PublishableKey = configuration["Stripe:PublishableKey"],
+            WebhookSecret = configuration["Stripe:WebhookSecret"]
+        };
+
+        StripeConfiguration.ApiKey = _stripeSettings.SecretKey;
     }
 
-    [HttpPost("create-checkout-session")]
-    public IActionResult CreateCheckoutSession([FromBody] CheckoutRequest request)
+    [HttpGet("process-payment")]
+    public IActionResult ProcessPayment(int packageId, long amount)
     {
+        // Fetch the package to get customer details (e.g., email)
+        var package = _projectDbContext.Packages
+            .FirstOrDefault(p => p.Id == packageId);
+
+        if (package == null) return NotFound();
+
         var options = new SessionCreateOptions
         {
             PaymentMethodTypes = new List<string> { "card" },
@@ -28,10 +48,10 @@ public class PaymentController : ControllerBase
                 PriceData = new SessionLineItemPriceDataOptions
                 {
                     Currency = "eur",
-                    UnitAmount = request.Amount,
+                    UnitAmount = amount,
                     ProductData = new SessionLineItemPriceDataProductDataOptions
                     {
-                        Name = "Box Delivery Service"
+                        Name = "Package Delivery"
                     }
                 },
                 Quantity = 1
@@ -39,19 +59,20 @@ public class PaymentController : ControllerBase
             }
         },
             Mode = "payment",
-            SuccessUrl = "https://localhost:7064/payment-success",
-            CancelUrl = "https://localhost:7064/payment-cancel",
-            CustomerEmail = request.Email, // Email for receipt (only in live/ manually send from https://dashboard.stripe.com/test/payments)
-            InvoiceCreation = new SessionInvoiceCreationOptions
+            SuccessUrl = $"https://localhost:7064/Payment/Success?packageId={packageId}",
+            CancelUrl = "https://localhost:7064/Package/Create",
+            Metadata = new Dictionary<string, string>
             {
-                Enabled = true
+            {
+                "packageId", packageId.ToString()
+            }
             }
         };
 
         var service = new SessionService();
         var session = service.Create(options);
 
-        return Ok(new { sessionUrl = session.Url });
+        return Redirect(session.Url); // Redirect to Stripe checkout
     }
 
     public class CheckoutRequest
@@ -71,22 +92,24 @@ public class PaymentController : ControllerBase
             var stripeEvent = EventUtility.ConstructEvent(
                 json,
                 Request.Headers["Stripe-Signature"],
-                "whsec_0148e4dea24d9cf8a700f02bc099c9771967b55062ab92952221195512349da9"
+                _stripeSettings.WebhookSecret // webhook secret from configuration
             );
 
-            switch (stripeEvent.Type)
+            if (stripeEvent.Type == "checkout.session.completed")
             {
-                case "invoice.finalized":
-                    Console.WriteLine("Invoice finalized. Email should have been sent.");
-                    break;
-
-                case "payment_intent.succeeded":
-                    Console.WriteLine("Payment succeeded. Email receipt should have been sent.");
-                    break;
-
-                default:
-                    Console.WriteLine($"Unhandled event type: {stripeEvent.Type}");
-                    break;
+                var session = stripeEvent.Data.Object as Session;
+                if (session?.Metadata != null && session.Metadata.ContainsKey("packageId"))
+                {
+                    if (int.TryParse(session.Metadata["packageId"], out int packageId))
+                    {
+                        var package = await _projectDbContext.Packages.FindAsync(packageId);
+                        if (package != null)
+                        {
+                            package.DeliveryStatusId = (int)DeliveryStatusEnum.Active;
+                            await _projectDbContext.SaveChangesAsync();
+                        }
+                    }
+                }
             }
 
             return Ok();
@@ -153,6 +176,17 @@ public class PaymentController : ControllerBase
     {
         public string Email { get; set; }
         public long Amount { get; set; }
+    }
+
+    [HttpGet("Success")]
+    public IActionResult Success(int packageId)
+    {
+        var package = _projectDbContext.Packages
+            .FirstOrDefault(p => p.Id == packageId);
+
+        if (package == null) return NotFound();
+
+        return View(package); // Pass package to view
     }
 
 

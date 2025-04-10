@@ -1,0 +1,48 @@
+﻿@model Delivery_System__Team_Enif_.Data.Entities.Package
+
+@{
+    ViewData["Title"] = "Track Package";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">Tracking Details - ID: @Model.Id</h3>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Sender:</dt>
+                <dd class="col-sm-9">@Model.SenderName (@Model.SenderAddress)</dd>
+
+                <dt class="col-sm-3">Recipient:</dt>
+                <dd class="col-sm-9">@Model.RecipientName (@Model.RecipientAddress)</dd>
+
+                <dt class="col-sm-3">Current Status:</dt>
+                <dd class="col-sm-9">
+                    <span class="badge bg-info">@Model.DeliveryStatus?.Name</span>
+                </dd>
+
+                <dt class="col-sm-3">Estimated Delivery:</dt>
+                <dd class="col-sm-9">@Model.DeliveryDate.ToString("dd MMM yyyy")</dd>
+
+                <dt class="col-sm-3">Package Dimensions:</dt>
+                <dd class="col-sm-9">
+                    @Model.Length cm × @Model.Width cm × @Model.Hight cm
+                    <br>(Volume: @((Model.Length * Model.Width * Model.Hight).ToString("N0")) cm³)
+                </dd>
+
+                <dt class="col-sm-3">Weight:</dt>
+                <dd class="col-sm-9">@Model.Weight.ToString("N2") kg</dd>
+            </dl>
+        </div>
+        <div class="card-footer text-muted">
+            <small>Created on @Model.CreatedDate.ToString("g") by @Model.CreatedBy.Name</small>
+        </div>
+    </div>
+
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>

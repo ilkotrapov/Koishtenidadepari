@@ -1,9 +1,11 @@
 using Delivery_System__Team_Enif_.Data;
 using Delivery_System__Team_Enif_.Models;
+using Delivery_System__Team_Enif_.Models.Stripe;
 using Delivery_System__Team_Enif_.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 
 public class Program
@@ -27,6 +29,10 @@ public class Program
         })
         .AddEntityFrameworkStores<ProjectDbContext>()
         .AddDefaultTokenProviders();
+
+        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+        builder.Services.AddSingleton(sp =>
+            sp.GetRequiredService<IOptions<StripeSettings>>().Value);
 
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         .AddCookie(options =>

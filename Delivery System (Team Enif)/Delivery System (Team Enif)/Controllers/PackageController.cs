@@ -122,7 +122,7 @@ namespace Delivery_System__Team_Enif_.Controllers
             return View(model);
         }
 
-        [HttpPost]
+        /*[HttpPost]
         public async Task<IActionResult> CreateConfirm(Package package)
         {
             ApplicationUser currentUser = await GetCurrentUserAsync();
@@ -145,14 +145,97 @@ namespace Delivery_System__Team_Enif_.Controllers
 
             return RedirectToAction("Index");
         }
+        */
 
-        [HttpGet("track/{trackingNumber}")]
+        [HttpPost]
+        public async Task<IActionResult> CreateConfirm(PackageViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View("Create", model);
+            }
+
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            {
+                return RedirectToAction("AccessDenied", "Account");
+            }
+
+            decimal packageSize = model.Length * model.Width * model.Hight;
+
+            decimal basePrice = 10;
+            decimal weightFee = model.Weight * 5;
+            decimal volumeFee = (model.PackageSize) / 2000;
+            decimal totalPrice = basePrice + weightFee + volumeFee;
+            long amountInCents = (long)(totalPrice * 100);
+
+            var deliveryOption = await _projectDbContext.DeliveryOptions.FindAsync(model.DeliveryOptionId);
+            var deliveryType = await _projectDbContext.DeliveryTypes.FindAsync(model.DeliveryTypeId);
+            var deliveryStatus = await _projectDbContext.DeliveryStatuses.FindAsync((int)DeliveryStatusEnum.Pending);
+
+            if (deliveryOption == null || deliveryType == null || deliveryStatus == null)
+            {
+                return BadRequest("Invalid delivery option, type, or status.");
+            }
+
+            // Initialize the Package with required CreatedBy and CreatedDate
+            var package = new Package
+            {
+                SenderName = model.SenderName,
+                RecipientName = model.RecipientName,
+                SenderAddress = model.SenderAddress,
+                RecipientAddress = model.RecipientAddress,
+                Length = model.Length,
+                Width = model.Width,
+                Hight = model.Hight,
+                Weight = model.Weight,
+                DeliveryOptionId = model.DeliveryOptionId,
+                DeliveryOption = deliveryOption,
+                DeliveryTypeId = model.DeliveryTypeId,
+                DeliveryType = deliveryType,
+                DeliveryStatusId = (int)DeliveryStatusEnum.Pending,
+                DeliveryStatus = deliveryStatus,
+                DeliveryDate = model.DeliveryDate,
+                CreatedBy = currentUser, // Set required CreatedBy
+                CreatedDate = DateTime.Now // Set CreatedDate
+            };
+
+            _projectDbContext.Packages.Add(package);
+            await _projectDbContext.SaveChangesAsync();
+
+            return Redirect($"/api/payment/process-payment?packageId={package.Id}&amount={amountInCents}");
+        }
+
+        /*[HttpGet("track/{trackingNumber}")]
         public async Task<IActionResult> TrackPackage(int trackingNumber)
         {
             var package = await _projectDbContext.Packages.FirstOrDefaultAsync(p => p.Id == trackingNumber);
             if (package == null) return NotFound("Package not found.");
 
             return Ok(package);
+        }
+        */
+
+        [HttpGet("track/{trackingNumber}")]
+        public async Task<IActionResult> TrackPackage(int trackingNumber)
+        {
+            var package = await _projectDbContext.Packages
+                .Include(p => p.DeliveryStatus)
+                .Include(p => p.CreatedBy)
+                .FirstOrDefaultAsync(p => p.Id == trackingNumber);
+
+            if (package == null)
+            {
+                return NotFound("Package not found.");
+            }
+
+            return View("Track", package); // Return the view with package data
         }
 
         [HttpPut("update/{id}")]
@@ -167,18 +250,18 @@ namespace Delivery_System__Team_Enif_.Controllers
                 _projectDbContext.Update(package);
                 await _projectDbContext.SaveChangesAsync();
             }
-                catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PackageExists(package.Id))
                 {
-                    if (!PackageExists(package.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
-                return RedirectToAction(nameof(Index));
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Packages/Details/5

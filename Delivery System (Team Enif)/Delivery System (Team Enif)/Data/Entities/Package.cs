@@ -5,6 +5,7 @@ namespace Delivery_System__Team_Enif_.Data.Entities
 {
     public class Package : BaseEntity
     {
+        public int Id { get; set; }
         public required string SenderName { get; set; }
         public required string RecipientName { get; set; }
         public required string SenderAddress { get; set; }
