@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "Office Details";
     var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
 @if (isAdmin)
@@ -53,4 +54,14 @@
         </a>
     </div>
 </div>
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+    <script>
+        window.location.href = "url";
+    </script>
+
 }

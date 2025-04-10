@@ -2,39 +2,54 @@
 
 @{
     ViewData["Title"] = "Delivery Details";
+    var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
+@if (isAdmin || isOfficeAssistant)
+{
 <h1>Delivery Details</h1>
 <hr />
 
-<div class="row">
-    <div class="col-md-6">
-        <dl class="row">
-            <dt class="col-sm-4">Package ID</dt>
-            <dd class="col-sm-8">@Model.PackageId</dd>
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4">Package ID</dt>
+                <dd class="col-sm-8">@Model.PackageId</dd>
 
-            <dt class="col-sm-4">Courier</dt>
-            <dd class="col-sm-8">@Model.CourierName</dd>
+                <dt class="col-sm-4">Courier</dt>
+                <dd class="col-sm-8">@Model.CourierName</dd>
 
-            <dt class="col-sm-4">Pickup Time</dt>
-            <dd class="col-sm-8">@Model.PickupTime.ToString("g")</dd>
+                <dt class="col-sm-4">Pickup Time</dt>
+                <dd class="col-sm-8">@Model.PickupTime.ToString("g")</dd>
 
-            <dt class="col-sm-4">Delivery Time</dt>
-            <dd class="col-sm-8">@Model.DeliveryTime.ToString("g")</dd>
+                <dt class="col-sm-4">Delivery Time</dt>
+                <dd class="col-sm-8">@Model.DeliveryTime.ToString("g")</dd>
 
-            <dt class="col-sm-4">Delivery Type</dt>
-            <dd class="col-sm-8">@Model.DeliveryTypeName</dd>
+                <dt class="col-sm-4">Delivery Type</dt>
+                <dd class="col-sm-8">@Model.DeliveryTypeName</dd>
 
-            <dt class="col-sm-4">Delivery Option</dt>
-            <dd class="col-sm-8">@Model.DeliveryOptionName</dd>
+                <dt class="col-sm-4">Delivery Option</dt>
+                <dd class="col-sm-8">@Model.DeliveryOptionName</dd>
 
-            <dt class="col-sm-4">Delivery Status</dt>
-            <dd class="col-sm-8">@Model.DeliveryStatusName</dd>
-        </dl>
+                <dt class="col-sm-4">Delivery Status</dt>
+                <dd class="col-sm-8">@Model.DeliveryStatusName</dd>
+            </dl>
+        </div>
     </div>
-</div>
 
-<div class="mt-3">
-    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</div>
+    <div class="mt-3">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+        <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+    </div>
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+<script>
+    window.location.href = "url";
+</script>
+
+}

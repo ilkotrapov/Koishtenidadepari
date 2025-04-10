@@ -2,44 +2,59 @@
 
 @{
     ViewData["Title"] = "Deliveries";
+    var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
-<h1>Deliveries</h1>
+@if (isAdmin || isOfficeAssistant)
+{
+    <h1>Deliveries</h1>
 
-<p>
-    <a asp-action="Create" class="btn btn-primary">Create New Delivery</a>
-</p>
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Create New Delivery</a>
+    </p>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>@Html.DisplayNameFor(model => model.PackageId)</th>
-            <th>@Html.DisplayNameFor(model => model.CourierName)</th>
-            <th>@Html.DisplayNameFor(model => model.PickupTime)</th>
-            <th>@Html.DisplayNameFor(model => model.DeliveryTime)</th>
-            <th>@Html.DisplayNameFor(model => model.DeliveryOptionName)</th>
-            <th>@Html.DisplayNameFor(model => model.DeliveryTypeName)</th>
-            <th>@Html.DisplayNameFor(model => model.DeliveryStatusName)</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Deliveries)
-        {
+    <table class="table table-striped">
+        <thead>
             <tr>
-                <td>@item.PackageId</td>
-                <td>@item.Courier?.Name</td>
-                <td>@item.PickupTime.ToString("g")</td>
-                <td>@item.DeliveryTime.ToString("g")</td>
-                <td>@item.DeliveryOption?.Name</td>
-                <td>@item.DeliveryType?.Name</td>
-                <td>@item.DeliveryStatus?.Name</td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
-                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
-                </td>
+                <th>@Html.DisplayNameFor(model => model.PackageId)</th>
+                <th>@Html.DisplayNameFor(model => model.CourierName)</th>
+                <th>@Html.DisplayNameFor(model => model.PickupTime)</th>
+                <th>@Html.DisplayNameFor(model => model.DeliveryTime)</th>
+                <th>@Html.DisplayNameFor(model => model.DeliveryOptionName)</th>
+                <th>@Html.DisplayNameFor(model => model.DeliveryTypeName)</th>
+                <th>@Html.DisplayNameFor(model => model.DeliveryStatusName)</th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Deliveries)
+            {
+                <tr>
+                    <td>@item.PackageId</td>
+                    <td>@item.Courier?.Name</td>
+                    <td>@item.PickupTime.ToString("g")</td>
+                    <td>@item.DeliveryTime.ToString("g")</td>
+                    <td>@item.DeliveryOption?.Name</td>
+                    <td>@item.DeliveryType?.Name</td>
+                    <td>@item.DeliveryStatus?.Name</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+<script>
+    window.location.href = "url";
+</script>
+
+}

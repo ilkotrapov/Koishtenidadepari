@@ -2,75 +2,90 @@
 
 @{
     ViewData["Title"] = "Edit Delivery";
+    var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
-<h1>Edit Delivery</h1>
-<hr />
+@if (isAdmin || isOfficeAssistant)
+{
+    <h1>Edit Delivery</h1>
+    <hr />
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Edit" method="post">
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <label asp-for="PackageId" class="control-label"></label>
-                <input asp-for="PackageId" class="form-control" />
-                <span asp-validation-for="PackageId" class="text-danger"></span>
-            </div>
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit" method="post">
+                <input type="hidden" asp-for="Id" />
+                <div class="form-group">
+                    <label asp-for="PackageId" class="control-label"></label>
+                    <input asp-for="PackageId" class="form-control" />
+                    <span asp-validation-for="PackageId" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="CourierId" class="control-label"></label>
-                <select asp-for="CourierId" class="form-control" asp-items="ViewBag.CourierId">
-                    <option value="">-- Select Courier --</option>
-                </select>
-                <span asp-validation-for="CourierId" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="CourierId" class="control-label"></label>
+                    <select asp-for="CourierId" class="form-control" asp-items="ViewBag.CourierId">
+                        <option value="">-- Select Courier --</option>
+                    </select>
+                    <span asp-validation-for="CourierId" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="PickupTime" class="control-label"></label>
-                <input asp-for="PickupTime" class="form-control" />
-                <span asp-validation-for="PickupTime" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="PickupTime" class="control-label"></label>
+                    <input asp-for="PickupTime" class="form-control" />
+                    <span asp-validation-for="PickupTime" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="DeliveryTime" class="control-label"></label>
-                <input asp-for="DeliveryTime" class="form-control" />
-                <span asp-validation-for="DeliveryTime" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="DeliveryTime" class="control-label"></label>
+                    <input asp-for="DeliveryTime" class="form-control" />
+                    <span asp-validation-for="DeliveryTime" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="DeliveryOptionId" class="control-label"></label>
-                <select asp-for="DeliveryOptionId" class="form-control" asp-items="ViewBag.DeliveryOptions">
-                    <option value="">-- Select Delivery Option --</option>
-                </select>
-                <span asp-validation-for="DeliveryOptionId" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="DeliveryOptionId" class="control-label"></label>
+                    <select asp-for="DeliveryOptionId" class="form-control" asp-items="ViewBag.DeliveryOptions">
+                        <option value="">-- Select Delivery Option --</option>
+                    </select>
+                    <span asp-validation-for="DeliveryOptionId" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="DeliveryTypeId" class="control-label"></label>
-                <select asp-for="DeliveryTypeId" class="form-control" asp-items="ViewBag.DeliveryTypes">
-                    <option value="">-- Select Delivery Type --</option>
-                </select>
-                <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="DeliveryTypeId" class="control-label"></label>
+                    <select asp-for="DeliveryTypeId" class="form-control" asp-items="ViewBag.DeliveryTypes">
+                        <option value="">-- Select Delivery Type --</option>
+                    </select>
+                    <span asp-validation-for="DeliveryTypeId" class="text-danger"></span>
+                </div>
 
-            <div class="form-group">
-                <label asp-for="DeliveryStatusId" class="control-label"></label>
-                <select asp-for="DeliveryStatusId" class="form-control" asp-items="ViewBag.DeliveryStatuses">
-                    <option value="">-- Select Delivery Status --</option>
-                </select>
-                <span asp-validation-for="DeliveryStatusId" class="text-danger"></span>
-            </div>
+                <div class="form-group">
+                    <label asp-for="DeliveryStatusId" class="control-label"></label>
+                    <select asp-for="DeliveryStatusId" class="form-control" asp-items="ViewBag.DeliveryStatuses">
+                        <option value="">-- Select Delivery Status --</option>
+                    </select>
+                    <span asp-validation-for="DeliveryStatusId" class="text-danger"></span>
+                </div>
 
-            <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary">Save</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-            </div>
-        </form>
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+    <script>
+        window.location.href = "url";
+    </script>
+
+}
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+    }

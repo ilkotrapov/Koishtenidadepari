@@ -3,9 +3,10 @@
 @{
     ViewData["Title"] = "Edit office data";
     var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
-@if (isAdmin)
+@if (isAdmin || isOfficeAssistant)
 {
     <div class="card mb-4 shadow-sm">
         <div class="card-header">
@@ -47,6 +48,16 @@
             </div>
         </div>
     </div>
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+    <script>
+        window.location.href = "url";
+    </script>
+
 }
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}

@@ -1,5 +1,11 @@
 ﻿@model IEnumerable<ApplicationUserWithRolesViewModel>
 
+@{
+    ViewData["Title"] = "Employees";
+    var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
+}
+
 <div id="userList">
     @if (Model == null || !Model.Any())
     {
@@ -24,3 +30,18 @@
         </ul>
     }
 </div>
+
+@if (isAdmin || isOfficeAssistant)
+{
+    
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+    <script>
+        window.location.href = "url";
+    </script>
+
+}

@@ -5,6 +5,7 @@
     var isOfficeAssistant = User.IsInRole("Office assistant");
     var isUser = User.IsInRole("User");
     var isAdmin = User.IsInRole("isAdmin");
+    var isCourier = User.IsInRole("isCourier");
 
     // if (user is Admin or Office assistant) removed.
 
@@ -22,7 +23,7 @@
     </div>
     */
 }
-  
+
 @{
    /*  Payment js. Has to fix HTML logic.       
     * 
@@ -40,60 +41,60 @@
 
     // Calculate price based on input
         function calculatePrice() {
-        const length = parseFloat(document.getElementById('length').value);
-        const width = parseFloat(document.getElementById('width').value);
-        const height = parseFloat(document.getElementById('height').value);
-        const weight = parseFloat(document.getElementById('weight').value);
+    const length = parseFloat(document.getElementById('length').value);
+    const width = parseFloat(document.getElementById('width').value);
+    const height = parseFloat(document.getElementById('height').value);
+    const weight = parseFloat(document.getElementById('weight').value);
 
-        // Simple pricing formula
-        const basePrice = 10; // Base fee
-        const weightFee = weight * 5; // €2 per kg
-        const volumeFee = (length * width * height) / 2000; // €0.50 per 1000 cm³
+    // Simple pricing formula
+    const basePrice = 10; // Base fee
+    const weightFee = weight * 5; // €2 per kg
+    const volumeFee = (length * width * height) / 2000; // €0.50 per 1000 cm³
 
-        const totalPrice = (basePrice + weightFee + volumeFee).toFixed(2);
+    const totalPrice = (basePrice + weightFee + volumeFee).toFixed(2);
 
-        document.getElementById('totalPrice').innerText = totalPrice;
+    document.getElementById('totalPrice').innerText = totalPrice;
     document.getElementById('priceDisplay').style.display = 'block';
-        }
+    }
 
         // Initiate Stripe Payment
         async function initiatePayment() {
-        const amount = parseFloat(document.getElementById('totalPrice').innerText) * 100; // cents
+    const amount = parseFloat(document.getElementById('totalPrice').innerText) * 100; // cents
 
-        const response = await fetch('/api/payment/create-checkout-session', {
-            method: 'POST',
+    const response = await fetch('/api/payment/create-checkout-session', {
+    method: 'POST',
             headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount: amount })
         });
 
-        const { sessionUrl } = await response.json();
+    const { sessionUrl } = await response.json();
     window.location.href = sessionUrl; // Redirect to Stripe Checkout
-        }
+    }
 
         // Send Invoice via Stripe API
         async function sendInvoice() {
-        const email = prompt("Enter email for invoice:");
-            if (email) {
-                const response = await fetch('/api/payment/send-invoice', {
-                method: 'POST',
+    const email = prompt("Enter email for invoice:");
+    if (email) {
+        const response = await fetch('/api/payment/send-invoice', {
+        method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: email })
             });
 
-            const result = await response.json();
-                if (result.success) {
-                alert(`Invoice sent to ${email}`);
-                } else {
+        const result = await response.json();
+        if (result.success) {
+            alert(`Invoice sent to ${email}`);
+            } else {
             alert("Invoice failed: " + result.message);
-     }
-     }
-     }
+            }
+        }
+    }
     </script>
     */
 
 }
 
-@{
+@if (!isCourier) {
     <div class="card mb-4 shadow-sm">
         <div class="card-header">
             <h4 class="display-4 text-center text-primary">New Package</h4>
@@ -161,9 +162,9 @@
                         <div class="form-group">
                             <label asp-for="OfficeId" class="control-label">Office</label>
                             @Html.DropDownListFor(m => m.OfficeId,
-                                            new SelectList(Model.AvailableOffices, "Id", "Name", Model.OfficeId),
-                                            "Select Office",
-                                            new { @class = "form-control" })
+                                                            new SelectList(Model.AvailableOffices, "Id", "Name", Model.OfficeId),
+                                                            "Select Office",
+                                                            new { @class = "form-control" })
                             <span asp-validation-for="OfficeId" class="text-danger"></span>
                         </div>
 
@@ -196,7 +197,17 @@
             </div>
         </div>
     </div>
-  }          
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+    <script>
+        window.location.href = "url";
+    </script>
+
+}
 
 @section Scripts {
     @{

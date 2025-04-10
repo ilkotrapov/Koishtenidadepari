@@ -45,7 +45,30 @@
                                 </li>
                             }
 
-                            @if (isUser || isOfficeAssistant)
+                            if (isOfficeAssistant)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Users">Users</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Office" asp-action="Index">Offices</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Delivery" asp-action="Index">Deliveries</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Package" asp-action="Index">Packages</a>
+                                </li>
+                            }
+
+                            if (isCourier)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-area="" asp-controller="Package" asp-action="Index">Packages</a>
+                                </li>
+                            }
+
+                            @if (isUser)
                             {
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="Package" asp-action="Index">Packages</a>

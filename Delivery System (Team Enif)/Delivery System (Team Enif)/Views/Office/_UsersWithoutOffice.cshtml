@@ -1,6 +1,14 @@
 ﻿@model List<ApplicationUser>
 
-<div id="userList">
+@{
+    ViewData["Title"] = "UsersWithoutOffice";
+    var isOfficeAssistant = User.IsInRole("Office assistant");
+    var isAdmin = User.IsInRole("Admin");
+}
+
+@if (isAdmin || isOfficeAssistant)
+{
+    <div id="userList">
     @if (Model == null || !Model.Any())
     {
         <p>No users available to add as employees</p>
@@ -18,3 +26,15 @@
         </ul>
     }
 </div>
+
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+    <script>
+        window.location.href = "url";
+    </script>
+
+}

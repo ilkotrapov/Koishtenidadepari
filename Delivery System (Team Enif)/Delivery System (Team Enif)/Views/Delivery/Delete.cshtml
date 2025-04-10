@@ -2,42 +2,57 @@
 
 @{
     ViewData["Title"] = "Delete Delivery";
+    var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
-<h1>Delete Delivery</h1>
+@if (isAdmin || isOfficeAssistant)
+{
+    <h1>Delete Delivery</h1>
 
-<h3 class="text-danger">Are you sure you want to delete this delivery?</h3>
-<hr />
+    <h3 class="text-danger">Are you sure you want to delete this delivery?</h3>
+    <hr />
 
-<div class="row">
-    <div class="col-md-6">
-        <dl class="row">
-            <dt class="col-sm-4">Package ID</dt>
-            <dd class="col-sm-8">@Model.PackageId</dd>
+    <div class="row">
+        <div class="col-md-6">
+            <dl class="row">
+                <dt class="col-sm-4">Package ID</dt>
+                <dd class="col-sm-8">@Model.PackageId</dd>
 
-            <dt class="col-sm-4">Courier</dt>
-            <dd class="col-sm-8">@Model.CourierName</dd>
+                <dt class="col-sm-4">Courier</dt>
+                <dd class="col-sm-8">@Model.CourierName</dd>
 
-            <dt class="col-sm-4">Pickup Time</dt>
-            <dd class="col-sm-8">@Model.PickupTime.ToString("g")</dd>
+                <dt class="col-sm-4">Pickup Time</dt>
+                <dd class="col-sm-8">@Model.PickupTime.ToString("g")</dd>
 
-            <dt class="col-sm-4">Delivery Time</dt>
-            <dd class="col-sm-8">@Model.DeliveryTime.ToString("g")</dd>
+                <dt class="col-sm-4">Delivery Time</dt>
+                <dd class="col-sm-8">@Model.DeliveryTime.ToString("g")</dd>
 
-            <dt class="col-sm-4">Delivery Type</dt>
-            <dd class="col-sm-8">@Model.DeliveryTypeName</dd>
+                <dt class="col-sm-4">Delivery Type</dt>
+                <dd class="col-sm-8">@Model.DeliveryTypeName</dd>
 
-            <dt class="col-sm-4">Delivery Option</dt>
-            <dd class="col-sm-8">@Model.DeliveryOptionName</dd>
+                <dt class="col-sm-4">Delivery Option</dt>
+                <dd class="col-sm-8">@Model.DeliveryOptionName</dd>
 
-            <dt class="col-sm-4">Delivery Status</dt>
-            <dd class="col-sm-8">@Model.DeliveryStatusName</dd>
-        </dl>
+                <dt class="col-sm-4">Delivery Status</dt>
+                <dd class="col-sm-8">@Model.DeliveryStatusName</dd>
+            </dl>
 
-        <form asp-action="Delete" method="post">
-            <input type="hidden" asp-for="Id" />
-            <button type="submit" class="btn btn-danger">Delete</button>
-            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-        </form>
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="Id" />
+                <button type="submit" class="btn btn-danger">Delete</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
     </div>
-</div>
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+<script>
+    window.location.href = "url";
+</script>
+
+}

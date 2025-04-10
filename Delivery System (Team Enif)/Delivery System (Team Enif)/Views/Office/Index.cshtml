@@ -3,9 +3,10 @@
 @{
     ViewData["Title"] = "Offices";
     var isAdmin = User.IsInRole("Admin");
+    var isOfficeAssistant = User.IsInRole("Office assistant");
 }
 
-@if (isAdmin)
+@if (isAdmin || isOfficeAssistant)
 {
 <div class="container mt-4">
     <div class="text-center mb-4">
@@ -56,4 +57,14 @@
         </tbody>
     </table>
 </div>
+}
+else
+{
+    {
+        var url = Url.Action("Users", "Account");
+    }
+    <script>
+        window.location.href = "url";
+    </script>
+
 }
