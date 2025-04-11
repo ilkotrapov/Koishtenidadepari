@@ -21,7 +21,7 @@
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
@@ -47,12 +47,6 @@
 
                             if (isOfficeAssistant)
                             {
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Account" asp-action="Users">Users</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" asp-area="" asp-controller="Office" asp-action="Index">Offices</a>
-                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" asp-area="" asp-controller="Delivery" asp-action="Index">Deliveries</a>
                                 </li>
@@ -105,9 +99,17 @@
                         }
                     </ul>
                 </div>
-            </div>
+            </div> 
         </nav>
     </header>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div style="text-align: right;" class="username-display">
+            <span>
+                <small class="text-muted">Signed in: @User.Identity.Name</small>
+            </span>
+        </div>
+    }
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()

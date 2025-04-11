@@ -8,11 +8,13 @@
 
 @if (isAdmin || isOfficeAssistant)
 {
-    <h1>Edit Delivery</h1>
-    <hr />
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header">
+            <h4 class="display-4 text-center text-primary">Edit Delivery</h4>
+        </div>
 
-    <div class="row">
-        <div class="col-md-6">
+        <div class="row card-body">
+            <div class="col-md-8 offset-md-2">
             <form asp-action="Edit" method="post">
                 <input type="hidden" asp-for="Id" />
                 <div class="form-group">
@@ -21,19 +23,21 @@
                     <span asp-validation-for="PackageId" class="text-danger"></span>
                 </div>
 
-                <div class="form-group">
-                    <label asp-for="CourierId" class="control-label"></label>
-                    <select asp-for="CourierId" class="form-control" asp-items="ViewBag.CourierId">
-                        <option value="">-- Select Courier --</option>
-                    </select>
-                    <span asp-validation-for="CourierId" class="text-danger"></span>
-                </div>
+                    <div class="form-section">
+                        <div class="form-group">
+                            <label asp-for="CourierId" class="control-label"></label>
+                            <select asp-for="CourierId" class="form-control" asp-items="ViewBag.CourierId">
+                                <option value="">-- Select Courier --</option>
+                            </select>
+                            <span asp-validation-for="CourierId" class="text-danger"></span>
+                        </div>
 
-                <div class="form-group">
-                    <label asp-for="PickupTime" class="control-label"></label>
-                    <input asp-for="PickupTime" class="form-control" />
-                    <span asp-validation-for="PickupTime" class="text-danger"></span>
-                </div>
+                        <div class="form-group">
+                            <label asp-for="PickupTime" class="control-label"></label>
+                            <input asp-for="PickupTime" class="form-control" />
+                            <span asp-validation-for="PickupTime" class="text-danger"></span>
+                        </div>
+                    </div>
 
                 <div class="form-group">
                     <label asp-for="DeliveryTime" class="control-label"></label>
@@ -65,12 +69,15 @@
                     <span asp-validation-for="DeliveryStatusId" class="text-danger"></span>
                 </div>
 
-                <div class="form-group mt-3">
-                    <button type="submit" class="btn btn-primary">Save</button>
-                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-                </div>
+                    <div class="card-footer text-center">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-list"></i>Cancel
+                        </a>
+                    </div>
             </form>
         </div>
+    </div>
     </div>
 }
 else

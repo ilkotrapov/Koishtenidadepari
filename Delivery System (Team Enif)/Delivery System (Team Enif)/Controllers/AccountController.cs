@@ -220,12 +220,14 @@ namespace Delivery_System__Team_Enif_.Controllers
             var applicationUser = user as ApplicationUser;
             if (applicationUser != null)
             {
+                var roles = await _userManager.GetRolesAsync(user);
                 var model = new ProfileViewModel
                 {
                     Name = applicationUser.Name,
                     Email = user.Email,
                     Phone = user.PhoneNumber,
-                    Address = user.Address
+                    Address = user.Address,
+                    Roles = roles
                 };
                 return View(model);
             } else
@@ -267,7 +269,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 if (result.Succeeded)
                 {
                     TempData["SuccessMessage"] = "Profile updated successfully!";
-                    return RedirectToAction("EditProfile"); // Redirect to the same page or elsewhere
+                    return RedirectToAction("EditProfile"); 
                 }
                 else
                 {
@@ -340,7 +342,7 @@ namespace Delivery_System__Team_Enif_.Controllers
 
             foreach (var user in users)
             {
-                var roles = await _userManager.GetRolesAsync(user); // ✅ This gets role names like "Admin", "Courier"
+                var roles = await _userManager.GetRolesAsync(user);
 
                 userViewModels.Add(new ApplicationUserWithRolesViewModel
                 {
@@ -349,7 +351,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 });
             }
 
-            return View(userViewModels); // 👈 View must be strongly typed: @model IEnumerable<ApplicationUserWithRolesViewModel>
+            return View(userViewModels);
         }
 
 

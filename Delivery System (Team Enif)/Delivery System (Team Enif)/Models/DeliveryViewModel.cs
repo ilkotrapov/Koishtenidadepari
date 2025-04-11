@@ -34,11 +34,11 @@ public class DeliveryViewModel
     [DisplayName("Delivery Id")]
     public int Id { get; set; }
 
-    [DisplayName("Package Id")]
-    [Required(ErrorMessage = "Package ID is required.")]
+    [DisplayName("Package Number")]
+    [Required(ErrorMessage = "Package Number is required.")]
     public int PackageId { get; set; }
 
-    [DisplayName("Courier Id")]
+    [DisplayName("Courier")]
     [Required(ErrorMessage = "Courier is required.")]
     public string CourierId { get; set; }
 

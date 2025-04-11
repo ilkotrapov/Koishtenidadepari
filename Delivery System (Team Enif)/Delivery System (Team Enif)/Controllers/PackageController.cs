@@ -61,7 +61,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 if (User.IsInRole("Office assistant"))
                 {
                     packages = _projectDbContext.Packages
-                                        .Include(p => p.CreatedBy)
+                                       .Include(p => p.CreatedBy)
                                        .Include(p => p.Office)
                                        .Include(p => p.DeliveryOption)
                                        .Include(p => p.DeliveryType)
@@ -303,7 +303,9 @@ namespace Delivery_System__Team_Enif_.Controllers
 
                 CreatedDate = package.CreatedDate,
                 CreatedByUserId = package.CreatedBy.Id,
-                CreatedByUser = package.CreatedBy.Name
+                CreatedByUser = package.CreatedBy.Name,
+
+                CurrentUserId = currentUser.Id
             };
 
             if (package.Office != null)
@@ -412,7 +414,9 @@ namespace Delivery_System__Team_Enif_.Controllers
 
                 CreatedDate = package.CreatedDate,
                 CreatedByUserId = package.CreatedBy.Id,
-                CreatedByUser = package.CreatedBy.Name
+                CreatedByUser = package.CreatedBy.Name,
+
+                CurrentUserId = currentUser.Id
             };
 
             var officeQuery = _projectDbContext.Offices.AsQueryable();

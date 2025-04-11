@@ -8,14 +8,16 @@
 
 @if (isAdmin || isOfficeAssistant)
 {
-    <h1>Deliveries</h1>
+    <div class="container mt-4">
+        <div class="text-center mb-4">
+            <a asp-action="Create" class="btn btn-lg btn-primary btn-grey">
+                <i class="fas fa-plus"></i>New Delivery
+            </a>
+        </div>
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Create New Delivery</a>
-    </p>
-
-    <table class="table table-striped">
-        <thead>
+        <table class="table table-hover table-striped table-bordered shadow-sm">
+            <thead class="thead-light">
             <tr>
                 <th>@Html.DisplayNameFor(model => model.PackageId)</th>
                 <th>@Html.DisplayNameFor(model => model.CourierName)</th>
@@ -39,14 +41,15 @@
                     <td>@item.DeliveryType?.Name</td>
                     <td>@item.DeliveryStatus?.Name</td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
                         <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
                         <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
                     </td>
                 </tr>
             }
-        </tbody>
-    </table>
+            </tbody>
+        </table>
+    </div>
 }
 else
 {
