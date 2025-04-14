@@ -26,7 +26,7 @@ namespace Delivery_System__Team_Enif_.Controllers
             ApplicationUser currentUser = await GetCurrentUserAsync();
             if (currentUser == null)
             {
-                RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Account");
             }
 
             bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
@@ -60,8 +60,8 @@ namespace Delivery_System__Team_Enif_.Controllers
 
                 if (User.IsInRole("Office assistant"))
                 {
-                    packages = _projectDbContext.Packages
-                                       .Include(p => p.CreatedBy)
+                    packages = await _projectDbContext.Packages
+                                        .Include(p => p.CreatedBy)
                                        .Include(p => p.Office)
                                        .Include(p => p.DeliveryOption)
                                        .Include(p => p.DeliveryType)
@@ -69,7 +69,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                                        .Where(p => p.OfficeId == currentUser.OfficeId)
                                        .OrderBy(p => p.CreatedDate)
                                        .ThenBy(p => p.DeliveryTypeId == (int)DeliveryTypeEnum.Express ? 0 : 1)
-                                       .ToList();
+                                       .ToListAsync();
                 }
                 else
                 {
@@ -668,7 +668,7 @@ namespace Delivery_System__Team_Enif_.Controllers
 
         private async Task<bool> IsUserRolesPermitAsync(ApplicationUser applicationUser)
         {
-            return User.IsInRole("Admin") || User.IsInRole("Office assistant") || User.IsInRole("User");
+            return User.IsInRole("Admin") || User.IsInRole("Office assistant") || User.IsInRole("User") || User.IsInRole("Courier");
         }
         private async Task PopulatePackageDropdowns(PackageViewModel model)
         {

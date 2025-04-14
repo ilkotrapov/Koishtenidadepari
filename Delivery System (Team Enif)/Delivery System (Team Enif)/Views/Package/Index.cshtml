@@ -7,8 +7,7 @@
     var isUser = User.IsInRole("User");
 }
 
-@if (isAdmin || isOfficeAssistant || isUser)
-{
+@{
     <div class="container mt-4">
         <div class="text-center mb-4">
             <a asp-action="Create" class="btn btn-lg btn-primary btn-grey">
