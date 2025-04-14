@@ -8,8 +8,7 @@
     var isUser = User.IsInRole("User");
 }
 
-@if (isAdmin || isOfficeAssistant || isUser)
-{
+@{
 <div class="card mb-4 shadow-sm">
     <div class="card-header">
         <h4 class="display-4 text-center text-primary">Package Information</h4>
@@ -89,9 +88,11 @@
         </div>
 
         <div class="card-footer text-center">
+            @if (isAdmin || isOfficeAssistant) {
             <a asp-controller="Package" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">
                 <i class="fas fa-edit"></i> Edit
              </a>
+            }
             <a asp-controller="Package" asp-action="Index" class="btn btn-secondary">
                 <i class="fas fa-list"></i> Back
             </a>

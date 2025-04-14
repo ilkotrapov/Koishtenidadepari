@@ -335,7 +335,7 @@ namespace Delivery_System__Team_Enif_.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var users = _userManager.Users.ToList();
+            var users = await _userManager.Users.ToListAsync();
             var userViewModels = new List<ApplicationUserWithRolesViewModel>();
 
             foreach (var user in users)
