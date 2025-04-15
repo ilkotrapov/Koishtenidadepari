@@ -355,7 +355,7 @@ namespace Delivery_System__Team_Enif_.Controllers
             }
 
             var courierRole = await _roleManager.FindByNameAsync("Courier");
-            var officeAssistantRole = await _roleManager.FindByNameAsync("Office Assistant");
+            var officeAssistantRole = await _roleManager.FindByNameAsync("Office assistant");
             var filteredUsers = new List<ApplicationUser>();
             foreach (var user in usersWithoutOfficeAssigned)
             {
