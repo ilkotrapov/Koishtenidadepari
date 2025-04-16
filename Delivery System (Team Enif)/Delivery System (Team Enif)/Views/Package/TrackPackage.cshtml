@@ -1,0 +1,284 @@
+﻿@model TrackingViewModel
+@{
+    ViewData["Title"] = "Track Package";
+}
+
+<div class="map-root">
+    <!-- Search Box - Fixed Positioning -->
+    <div class="search-box-wrapper" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 1000;">
+        <div class="card shadow-sm">
+            <div class="card-body p-2">
+                <form method="post" asp-action="TrackPackage">
+                    @Html.AntiForgeryToken()
+                    <div class="input-group">
+                        <input type="text"
+                               class="form-control"
+                               name="trackingNumber"
+                               placeholder="Enter tracking number"
+                               value="@Model?.TrackingNumber">
+                        <button class="btn btn-primary" type="submit">
+                            <i class="fas fa-search"></i> Track Package
+                        </button>
+                    </div>
+                </form>
+                @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
+                {
+                    <div class="alert alert-danger mt-2 mb-0">
+                        @Model.ErrorMessage
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Button - Improved Visibility -->
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="position-fixed bottom-0 end-0 m-3" style="z-index: 1000;">
+            <button class="btn btn-warning btn-lg rounded-pill shadow-lg px-4" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#updateLocationModal">
+                <i class="fas fa-edit me-2"></i>Update Location
+            </button>
+        </div>
+    }
+
+    <!-- Update Location Modal - Fixed Form -->
+    <div class="modal fade" id="updateLocationModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">Update Package Location</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="locationForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="trackingNumber" value="@Model?.TrackingNumber">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Tracking Number</label>
+                            <input type="text" class="form-control" 
+                                   value="@Model?.TrackingNumber" disabled>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Latitude</label>
+                            <input type="number" step="0.000001" 
+                                   class="form-control" name="latitude" 
+                                   required value="@Model?.CurrentLatitude">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Longitude</label>
+                            <input type="number" step="0.000001" 
+                                   class="form-control" name="longitude" 
+                                   required value="@Model?.CurrentLongitude">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" id="saveLocation">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Map Container -->
+    <div id="tracking-map" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 1;"></div>
+</div>
+
+
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css" />
+    <style>
+        /* Critical base styles */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .map-root {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #tracking-map {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100% !important;
+            width: 100% !important;
+            z-index: 1;
+        }
+
+        .search-box-wrapper {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000; /* Higher than map */
+            width: 95%;
+            max-width: 600px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"
+            integrity="sha512-k8WL9L2jG8KyG3pCJA4mHMdg2YSoWrdB5QN6l5zL5pVPNvDJMLQoJeZs5hSQwCjxJBBn4pme7Nfb6igR3WqXg=="
+            crossorigin="anonymous">
+    </script>
+
+    <script>
+        const MAP_CONTAINER_ID = 'tracking-map';
+        const DEFAULT_ZOOM = 4;
+        const DEFAULT_CENTER = [40.7128, -74.0060];
+
+        let map = null;
+        let tileLayer = null;
+        let marker = null;
+        let polyline = null;
+        let resizeObserver = null;
+
+        delete L.Icon.Default.prototype._getIconUrl;
+        L.Icon.Default.mergeOptions({
+            iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
+        });
+
+        function initMap(center, zoom) {
+            if (map) {
+                map.remove();
+                resizeObserver?.disconnect();
+            }
+
+            map = L.map(MAP_CONTAINER_ID, {
+                preferCanvas: true,
+                zoomControl: false,
+                attributionControl: false
+            });
+
+            tileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                minZoom: 2,
+                maxNativeZoom: 19,
+                noWrap: true,
+                detectRetina: true,
+                errorTileUrl: 'data:image/png;base64,...'
+            }).addTo(map);
+
+            map.setView(center, zoom);
+            L.control.zoom({ position: 'topright' }).addTo(map);
+
+            resizeObserver = new ResizeObserver(() => {
+                map.invalidateSize({ animate: false, debounceMoveend: true });
+            });
+            resizeObserver.observe(document.getElementById(MAP_CONTAINER_ID));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap(DEFAULT_CENTER, DEFAULT_ZOOM);
+        });
+
+        @if (!string.IsNullOrEmpty(Model?.TrackingNumber))
+        {
+            <text>
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const coords = [
+                @Model.CurrentLatitude.ToString(System.Globalization.CultureInfo.InvariantCulture),
+                @Model.CurrentLongitude.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                        ];
+
+                        initMap(coords, 13);
+
+                        marker = L.marker(coords)
+                            .addTo(map)
+                            .bindPopup(`<b>@Model.TrackingNumber</b>`)
+                            .openPopup();
+
+                @if (Model.LocationHistory?.Any() == true)
+                {
+                    <text>
+                                    const historyCoords = @Json.Serialize(Model.LocationHistory.Select(h => new[] { h.Latitude, h.Longitude }));
+                                    polyline = L.polyline(historyCoords, { color: 'blue' }).addTo(map);
+                                    map.fitBounds(polyline.getBounds().pad(0.1));
+                    </text>
+                }
+                    });
+            </text>
+        }
+
+        // SignalR real-time updates
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/packageHub")
+            .build();
+
+        connection.start().then(() => {
+            connection.invoke("JoinTrackingGroup", "@Model?.TrackingNumber");
+        });
+
+        connection.on("LocationUpdated", (lat, lng, history) => {
+            marker.setLatLng([lat, lng]);
+
+            if (polyline) polyline.remove();
+            polyline = L.polyline(history, { color: 'blue' }).addTo(map);
+
+            map.setView([lat, lng], map.getZoom());
+        });
+
+        // 🔧 Corrected Save Changes logic using FormData
+        document.getElementById('saveLocation').addEventListener('click', async () => {
+            const form = document.getElementById('locationForm');
+            const formData = new FormData(form);
+
+            try {
+                const response = await fetch('@Url.Action("UpdateLocation", "Package")', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const lat = parseFloat(formData.get('latitude'));
+                    const lng = parseFloat(formData.get('longitude'));
+
+                    // Update the marker
+                    if (marker) {
+                        marker.setLatLng([lat, lng]);
+                        map.setView([lat, lng], map.getZoom());
+                    }
+
+                    // Add to polyline
+                    if (polyline) {
+                        polyline.addLatLng([lat, lng]);
+                        map.fitBounds(polyline.getBounds().pad(0.1));
+                    } else {
+                        polyline = L.polyline([[lat, lng]], { color: 'blue' }).addTo(map);
+                    }
+
+                    // Close modal
+                    bootstrap.Modal.getInstance(document.getElementById('updateLocationModal')).hide();
+                    alert('Location updated successfully!');
+                } else {
+                    const error = await response.text();
+                    alert(error || 'Failed to update location');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error updating location. Check console for details.');
+            }
+        });
+    </script>
+}

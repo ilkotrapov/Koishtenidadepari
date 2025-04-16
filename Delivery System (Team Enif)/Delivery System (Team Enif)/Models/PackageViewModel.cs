@@ -1,6 +1,26 @@
 ﻿using Delivery_System__Team_Enif_.Data.Entities;
 using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.AspNetCore.Mvc.Rendering;
+
+public enum DeliveryStatusEnum
+{
+    Pending = 1,
+    Active = 2,
+    Completed = 3,
+    PaymentFailed = 4
+}
+
+public enum DeliveryTypeEnum
+{
+    Standard = 1,
+    Express = 2
+}
+
+public enum DeliveryOptionEnum
+{
+    DoorToDoor = 1,
+    PickUp_DropOffLocalOffice = 2
+}
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel;
 

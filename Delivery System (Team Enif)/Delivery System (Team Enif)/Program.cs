@@ -1,9 +1,12 @@
 using Delivery_System__Team_Enif_.Data;
+using Delivery_System__Team_Enif_.Hubs;
 using Delivery_System__Team_Enif_.Models;
+using Delivery_System__Team_Enif_.Models.Stripe;
 using Delivery_System__Team_Enif_.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 
 public class Program
@@ -28,6 +31,10 @@ public class Program
         .AddEntityFrameworkStores<ProjectDbContext>()
         .AddDefaultTokenProviders();
 
+        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+        builder.Services.AddSingleton(sp =>
+            sp.GetRequiredService<IOptions<StripeSettings>>().Value);
+
         builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
         .AddCookie(options =>
         {
@@ -37,9 +44,12 @@ public class Program
             options.SlidingExpiration = true; // Refresh the session time
         });
 
-        // Add services to the container.
+        builder.Services.AddSignalR();
+
         builder.Services.AddControllersWithViews();
     }
+
+
 
     public static void ConfigureApp(WebApplication app)
     {
@@ -55,15 +65,16 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-
         app.UseRouting();
-
         app.UseAuthentication();
         app.UseAuthorization();
+
 
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
+
+        app.MapHub<PackageHub>("/packageHub");
 
     }
 
@@ -71,6 +82,14 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
         ConfigureServices(builder);
+
+        /*if (builder.Environment.IsDevelopment())
+        {
+            // Allow invalid certificates for local testing
+            HttpClientHandler.ServerCertificateCustomValidationCallback =
+                (message, cert, chain, errors) => true;
+        }
+        */
 
         var app = builder.Build();
         ConfigureApp(app);

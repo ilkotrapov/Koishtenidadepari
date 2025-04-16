@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Delivery_System__Team_Enif_.Data;
 using Delivery_System__Team_Enif_.Data.Entities;
@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Identity;
 using Delivery_System__Team_Enif_.Models;
 using System.Security.Claims;
+using Delivery_System__Team_Enif_.Hubs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+
 
 namespace Delivery_System__Team_Enif_.Controllers
 {
@@ -206,14 +210,193 @@ namespace Delivery_System__Team_Enif_.Controllers
 
             return RedirectToAction("Index");
         }
+        */
 
-        [HttpGet("track/{trackingNumber}")]
-        public async Task<IActionResult> TrackPackage(int trackingNumber)
+        [HttpPost]
+        public async Task<IActionResult> CreateConfirm(PackageViewModel model)
         {
-            var package = await _projectDbContext.Packages.FirstOrDefaultAsync(p => p.Id == trackingNumber);
-            if (package == null) return NotFound("Package not found.");
+            if (!ModelState.IsValid)
+            {
+                return View("Create", model);
+            }
 
-            return Ok(package);
+            ApplicationUser currentUser = await GetCurrentUserAsync();
+            if (currentUser == null)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
+            if (!isUserRolePermit)
+            if (currentUser == null) return RedirectToAction("Login", "Account");
+
+            if (!await IsUserRolesPermitAsync(currentUser))
+                return RedirectToAction("AccessDenied", "Account");
+
+            // 🛡 Validate OfficeId
+            var officeExists = await _projectDbContext.Offices.AnyAsync(o => o.Id == viewModel.OfficeId);
+            if (!officeExists)
+            {
+                ModelState.AddModelError("OfficeId", "Selected Office does not exist.");
+                await PopulatePackageDropdowns(viewModel);
+                return View(viewModel);
+            }
+
+            decimal packageSize = model.Length * model.Width * model.Hight;
+
+            decimal basePrice = 10;
+            decimal weightFee = model.Weight * 5;
+            decimal volumeFee = (model.PackageSize) / 2000;
+            decimal totalPrice = basePrice + weightFee + volumeFee;
+            long amountInCents = (long)(totalPrice * 100);
+
+            var deliveryOption = await _projectDbContext.DeliveryOptions.FindAsync(model.DeliveryOptionId);
+            var deliveryType = await _projectDbContext.DeliveryTypes.FindAsync(model.DeliveryTypeId);
+            var deliveryStatus = await _projectDbContext.DeliveryStatuses.FindAsync((int)DeliveryStatusEnum.Pending);
+
+            if (deliveryOption == null || deliveryType == null || deliveryStatus == null)
+            {
+                return BadRequest("Invalid delivery option, type, or status.");
+            }
+
+            // Initialize the Package with required CreatedBy and CreatedDate
+            var package = new Package
+            {
+                SenderName = model.SenderName,
+                RecipientName = model.RecipientName,
+                SenderAddress = model.SenderAddress,
+                RecipientAddress = model.RecipientAddress,
+                Length = model.Length,
+                Width = model.Width,
+                Hight = model.Hight,
+                Weight = model.Weight,
+                DeliveryOptionId = model.DeliveryOptionId,
+                DeliveryOption = deliveryOption,
+                DeliveryTypeId = model.DeliveryTypeId,
+                DeliveryType = deliveryType,
+                DeliveryStatusId = (int)DeliveryStatusEnum.Pending,
+                DeliveryStatus = deliveryStatus,
+                DeliveryDate = model.DeliveryDate,
+                CreatedBy = currentUser, // Set required CreatedBy
+                CreatedDate = DateTime.Now, // Set CreatedDate
+                CurrentLatitude = 40.7128m, // NYC default
+                CurrentLongitude = -74.0060m
+            };
+
+            _projectDbContext.Packages.Add(package);
+            await _projectDbContext.SaveChangesAsync();
+            var package = new Package
+            {
+                SenderName = viewModel.SenderName,
+                SenderAddress = viewModel.SenderAddress,
+                RecipientName = viewModel.RecipientName,
+                RecipientAddress = viewModel.RecipientAddress,
+                Length = viewModel.Length,
+                Width = viewModel.Width,
+                Hight = viewModel.Hight,
+                Weight = viewModel.Weight,
+                OfficeId = viewModel.OfficeId,
+                DeliveryOptionId = viewModel.DeliveryOptionId,
+                DeliveryTypeId = viewModel.DeliveryTypeId,
+                DeliveryStatusId = (int)DeliveryStatusEnum.Pending,
+                DeliveryDate = viewModel.DeliveryDate,
+                CreatedDate = DateTime.Now,
+                CreatedBy = currentUser
+            };
+
+            _projectDbContext.Packages.Add(package);
+            await _projectDbContext.SaveChangesAsync();
+
+            return Redirect($"/api/payment/process-payment?packageId={package.Id}&amount={amountInCents}");
+        }
+
+
+        [HttpGet("TrackPackage")]
+        public IActionResult TrackPackage()
+        {
+            return View(new TrackingViewModel
+            {
+                CurrentLatitude = 40.7128m,
+                CurrentLongitude = -74.0060m
+            });
+        }
+
+        [HttpPost("TrackPackage")]
+        public async Task<IActionResult> TrackPackage(string trackingNumber)
+        {
+            var vm = new TrackingViewModel();
+
+            try
+            {
+                var package = await _projectDbContext.Packages
+                    .Include(p => p.DeliveryStatus)
+                    .Include(p => p.LocationHistory)
+                    .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber);
+
+                if (package == null)
+                {
+                    vm.ErrorMessage = "Tracking number not found";
+                    return View(vm);
+                }
+
+                // Map to ViewModel
+                vm.TrackingNumber = package.TrackingNumber;
+                vm.CurrentLatitude = package.CurrentLatitude;
+                vm.CurrentLongitude = package.CurrentLongitude;
+                vm.Status = package.DeliveryStatus?.Name; // Get the name here
+
+                // Map location history
+                vm.LocationHistory = package.LocationHistory?.Select(h => new TrackingViewModel.LocationHistoryItem
+                {
+                    Latitude = h.Latitude,
+                    Longitude = h.Longitude
+                }).ToList();
+
+                return View(vm);
+            }
+            catch (Exception ex)
+            {
+                vm.ErrorMessage = "Error retrieving tracking information";
+                Console.WriteLine($"Tracking error: {ex}");
+                return View(vm);
+            }
+        }
+
+        public class UpdateLocationModel
+        {
+            public string TrackingNumber { get; set; }
+            public decimal Latitude { get; set; }
+            public decimal Longitude { get; set; }
+        }
+
+        [HttpPost("UpdateLocation")]
+        [Authorize(Roles = "Admin,Courier,User")]
+        public async Task<IActionResult> UpdateLocation(
+            [FromBody] UpdateLocationModel model,
+            [FromServices] IHubContext<PackageHub> hubContext)
+        {
+            var package = await _projectDbContext.Packages
+                .Include(p => p.LocationHistory)
+                .FirstOrDefaultAsync(p => p.TrackingNumber == model.TrackingNumber);
+
+            if (package == null) return NotFound();
+
+            package.CurrentLatitude = model.Latitude;
+            package.CurrentLongitude = model.Longitude;
+
+            package.LocationHistory.Add(new PackageLocation
+            {
+                Latitude = model.Latitude,
+                Longitude = model.Longitude,
+                Timestamp = DateTime.UtcNow
+            });
+
+            await _projectDbContext.SaveChangesAsync();
+
+            await hubContext.Clients.Group(model.TrackingNumber)
+                .SendAsync("LocationUpdated", model.Latitude, model.Longitude);
+
+            return Ok();
         }
 
         [HttpPut("update/{id}")]
@@ -228,18 +411,18 @@ namespace Delivery_System__Team_Enif_.Controllers
                 _projectDbContext.Update(package);
                 await _projectDbContext.SaveChangesAsync();
             }
-                catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!PackageExists(package.Id))
                 {
-                    if (!PackageExists(package.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    return NotFound();
                 }
-                return RedirectToAction(nameof(Index));
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Packages/Details/5

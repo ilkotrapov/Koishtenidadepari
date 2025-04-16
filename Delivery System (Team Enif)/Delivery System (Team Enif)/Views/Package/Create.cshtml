@@ -147,10 +147,13 @@
                             <span asp-validation-for="Hight" class="text-danger"></span>
                         </div>
                         <div class="form-group">
-                            <label asp-for="PackageSize" class="control-label"></label>
-                            <input type="number" asp-for="PackageSize" class="form-control" readonly />
+                            <label class="control-label">Estimated Size (cm³)</label>
+                            <input type="number" class="form-control"
+                                   id="packageSizePreview" readonly />
                         </div>
                     </div>
+
+                    <input type="hidden" asp-for="PackageSize" />
 
                     <div class="form-group">
                         <label asp-for="Weight" class="control-label"></label>
@@ -211,6 +214,21 @@ else
 
 @section Scripts {
     @{
-                await Html.RenderPartialAsync("_ValidationScriptsPartial");
- }
-}
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script>
+            function updateSizePreview() {
+                const length = parseFloat(document.getElementById('Length').value) || 0;
+                const width = parseFloat(document.getElementById('Width').value) || 0;
+                const height = parseFloat(document.getElementById('Hight').value) || 0;
+
+                document.getElementById('packageSizePreview').value =
+                    (length * width * height).toFixed(2);
+            }
+
+            // Update preview on any dimension change
+            document.querySelectorAll('#Length, #Width, #Hight').forEach(input => {
+                input.addEventListener('input', updateSizePreview);
+            });
+        </script>
+    }
+}       

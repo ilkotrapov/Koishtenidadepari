@@ -4,16 +4,19 @@ using Delivery_System__Team_Enif_.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Delivery_System__Team_Enif_.Migrations
+namespace Delivery_System__Team_Enif_.Data.Migrations
 {
     [DbContext(typeof(ProjectDbContext))]
-    partial class ProjectDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250414164626_AddLocationTracking")]
+    partial class AddLocationTracking
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,7 +25,7 @@ namespace Delivery_System__Team_Enif_.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Delivery", b =>
+            modelBuilder.Entity("Delivery", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -32,19 +35,14 @@ namespace Delivery_System__Team_Enif_.Migrations
 
                     b.Property<string>("CourierId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("DeliveryOptionId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DeliveryStatusId")
-                        .HasColumnType("int");
+                    b.Property<string>("DeliveryStatus")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DeliveryTime")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("DeliveryTypeId")
-                        .HasColumnType("int");
 
                     b.Property<int>("PackageId")
                         .HasColumnType("int");
@@ -53,14 +51,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CourierId");
-
-                    b.HasIndex("DeliveryOptionId");
-
-                    b.HasIndex("DeliveryStatusId");
-
-                    b.HasIndex("DeliveryTypeId");
 
                     b.ToTable("Deliveries");
                 });
@@ -80,18 +70,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DeliveryOptions");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "DoorToDoor"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "PickUp_DropOffLocalOffice"
-                        });
                 });
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.DeliveryStatus", b =>
@@ -109,23 +87,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DeliveryStatuses");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Pending"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Active"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Completed"
-                        });
                 });
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.DeliveryType", b =>
@@ -143,18 +104,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DeliveryTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Standard"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Express"
-                        });
                 });
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Office", b =>
@@ -224,9 +173,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.Property<decimal>("Length")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int?>("OfficeId")
-                        .HasColumnType("int");
-
                     b.Property<string>("RecipientAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -263,9 +209,7 @@ namespace Delivery_System__Team_Enif_.Migrations
 
                     b.HasIndex("DeliveryTypeId");
 
-                    b.HasIndex("OfficeId");
-
-                    b.ToTable("Packages");
+                    b.ToTable("Package");
                 });
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.PackageLocation", b =>
@@ -508,41 +452,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Delivery", b =>
-                {
-                    b.HasOne("Delivery_System__Team_Enif_.Models.ApplicationUser", "Courier")
-                        .WithMany()
-                        .HasForeignKey("CourierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Delivery_System__Team_Enif_.Data.Entities.DeliveryOption", "DeliveryOption")
-                        .WithMany()
-                        .HasForeignKey("DeliveryOptionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Delivery_System__Team_Enif_.Data.Entities.DeliveryStatus", "DeliveryStatus")
-                        .WithMany()
-                        .HasForeignKey("DeliveryStatusId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Delivery_System__Team_Enif_.Data.Entities.DeliveryType", "DeliveryType")
-                        .WithMany()
-                        .HasForeignKey("DeliveryTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Courier");
-
-                    b.Navigation("DeliveryOption");
-
-                    b.Navigation("DeliveryStatus");
-
-                    b.Navigation("DeliveryType");
-                });
-
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.Package", b =>
                 {
                     b.HasOne("Delivery_System__Team_Enif_.Models.ApplicationUser", "CreatedBy")
@@ -567,10 +476,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Delivery_System__Team_Enif_.Data.Entities.Office", "Office")
-                        .WithMany()
-                        .HasForeignKey("OfficeId");
-
                     b.Navigation("CreatedBy");
 
                     b.Navigation("DeliveryOption");
@@ -578,8 +483,6 @@ namespace Delivery_System__Team_Enif_.Migrations
                     b.Navigation("DeliveryStatus");
 
                     b.Navigation("DeliveryType");
-
-                    b.Navigation("Office");
                 });
 
             modelBuilder.Entity("Delivery_System__Team_Enif_.Data.Entities.PackageLocation", b =>
