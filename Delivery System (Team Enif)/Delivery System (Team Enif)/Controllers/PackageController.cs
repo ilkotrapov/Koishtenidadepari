@@ -126,30 +126,6 @@ namespace Delivery_System__Team_Enif_.Controllers
             return View(model);
         }
 
-        /*[HttpPost]
-        public async Task<IActionResult> CreateConfirm(Package package)
-        {
-            ApplicationUser currentUser = await GetCurrentUserAsync();
-            if (currentUser == null)
-            {
-                RedirectToAction("Login", "Account");
-            }
-
-            bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
-            if (!isUserRolePermit)
-            {
-                return RedirectToAction("AccessDenied", "Account");
-            }
-
-            package.CreatedBy = currentUser;
-            package.CreatedDate = DateTime.Now;
-            package.DeliveryStatusId = (int)DeliveryStatusEnum.Pending;
-            _projectDbContext.Add(package);
-            _projectDbContext.SaveChanges();
-
-            return RedirectToAction("Index");
-        }
-        */
 
         [HttpPost]
         public async Task<IActionResult> CreateConfirm(PackageViewModel model)
