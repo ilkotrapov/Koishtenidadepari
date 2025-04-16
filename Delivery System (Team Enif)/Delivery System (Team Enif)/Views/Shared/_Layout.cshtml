@@ -7,14 +7,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Delivery_System__Team_Enif_</title>
+    @RenderSection("Styles", required: false)
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="dns-prefetch" href="https://unpkg.com">
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+          crossorigin="anonymous" />
+
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/delivery.css" asp-append-version="true" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
-<body>
+
+<body class ="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
@@ -51,6 +58,10 @@
                                     <a class="nav-link" asp-area="" asp-controller="Package" asp-action="Create">Create Package</a>
                                 </li>
                             }
+
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Package" asp-action="TrackPackage">Track Package</a>
+                            </li>
                         }
                     </ul>
 
@@ -82,19 +93,19 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
+    <main class="flex-grow-1" `style="margin-top: 56px;">
+        @RenderBody()
+    </main>
+
+    <footer class="border-top footer text-muted mt-auto">
         <div class="container">
             &copy; 2025 - Team Enif - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/lib/microsoft/signalr/dist/browser/signalr.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/delivery.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

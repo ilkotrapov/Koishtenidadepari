@@ -1,4 +1,5 @@
 using Delivery_System__Team_Enif_.Data;
+using Delivery_System__Team_Enif_.Hubs;
 using Delivery_System__Team_Enif_.Models;
 using Delivery_System__Team_Enif_.Models.Stripe;
 using Delivery_System__Team_Enif_.Services;
@@ -43,7 +44,8 @@ public class Program
             options.SlidingExpiration = true; // Refresh the session time
         });
 
-        // Add services to the container.
+        builder.Services.AddSignalR();
+
         builder.Services.AddControllersWithViews();
     }
 
@@ -63,15 +65,16 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-
         app.UseRouting();
-
         app.UseAuthentication();
         app.UseAuthorization();
+
 
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}");
+
+        app.MapHub<PackageHub>("/packageHub");
 
     }
 

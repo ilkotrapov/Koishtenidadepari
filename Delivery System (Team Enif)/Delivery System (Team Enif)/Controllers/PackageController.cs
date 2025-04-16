@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Identity;
 using Delivery_System__Team_Enif_.Models;
 using System.Security.Claims;
+using Delivery_System__Team_Enif_.Hubs;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
+
 
 namespace Delivery_System__Team_Enif_.Controllers
 {
@@ -203,7 +207,9 @@ namespace Delivery_System__Team_Enif_.Controllers
                 DeliveryStatus = deliveryStatus,
                 DeliveryDate = model.DeliveryDate,
                 CreatedBy = currentUser, // Set required CreatedBy
-                CreatedDate = DateTime.Now // Set CreatedDate
+                CreatedDate = DateTime.Now, // Set CreatedDate
+                CurrentLatitude = 40.7128m, // NYC default
+                CurrentLongitude = -74.0060m
             };
 
             _projectDbContext.Packages.Add(package);
@@ -212,26 +218,93 @@ namespace Delivery_System__Team_Enif_.Controllers
             return Redirect($"/api/payment/process-payment?packageId={package.Id}&amount={amountInCents}");
         }
 
-        /*[HttpGet("track/{trackingNumber}")]
-        public async Task<IActionResult> TrackPackage(int trackingNumber)
+
+        [HttpGet("TrackPackage")]
+        public IActionResult TrackPackage()
         {
-            var package = await _projectDbContext.Packages.FirstOrDefaultAsync(p => p.Id == trackingNumber);
-            if (package == null) return NotFound("Package not found.");
-
-            return Ok(package);
+            return View(new TrackingViewModel
+            {
+                CurrentLatitude = 40.7128m,
+                CurrentLongitude = -74.0060m
+            });
         }
-        */
 
-        [HttpGet("Track/{trackingNumber}")]
+        [HttpPost("TrackPackage")]
         public async Task<IActionResult> TrackPackage(string trackingNumber)
         {
+            var vm = new TrackingViewModel();
+
+            try
+            {
+                var package = await _projectDbContext.Packages
+                    .Include(p => p.DeliveryStatus)
+                    .Include(p => p.LocationHistory)
+                    .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber);
+
+                if (package == null)
+                {
+                    vm.ErrorMessage = "Tracking number not found";
+                    return View(vm);
+                }
+
+                // Map to ViewModel
+                vm.TrackingNumber = package.TrackingNumber;
+                vm.CurrentLatitude = package.CurrentLatitude;
+                vm.CurrentLongitude = package.CurrentLongitude;
+                vm.Status = package.DeliveryStatus?.Name; // Get the name here
+
+                // Map location history
+                vm.LocationHistory = package.LocationHistory?.Select(h => new TrackingViewModel.LocationHistoryItem
+                {
+                    Latitude = h.Latitude,
+                    Longitude = h.Longitude
+                }).ToList();
+
+                return View(vm);
+            }
+            catch (Exception ex)
+            {
+                vm.ErrorMessage = "Error retrieving tracking information";
+                Console.WriteLine($"Tracking error: {ex}");
+                return View(vm);
+            }
+        }
+
+        public class UpdateLocationModel
+        {
+            public string TrackingNumber { get; set; }
+            public decimal Latitude { get; set; }
+            public decimal Longitude { get; set; }
+        }
+
+        [HttpPost("UpdateLocation")]
+        [Authorize(Roles = "Admin,Courier,User")]
+        public async Task<IActionResult> UpdateLocation(
+            [FromBody] UpdateLocationModel model,
+            [FromServices] IHubContext<PackageHub> hubContext)
+        {
             var package = await _projectDbContext.Packages
-                .Include(p => p.DeliveryStatus)
-                .FirstOrDefaultAsync(p => p.TrackingNumber == trackingNumber);
+                .Include(p => p.LocationHistory)
+                .FirstOrDefaultAsync(p => p.TrackingNumber == model.TrackingNumber);
 
             if (package == null) return NotFound();
 
-            return View("Track", package);
+            package.CurrentLatitude = model.Latitude;
+            package.CurrentLongitude = model.Longitude;
+
+            package.LocationHistory.Add(new PackageLocation
+            {
+                Latitude = model.Latitude,
+                Longitude = model.Longitude,
+                Timestamp = DateTime.UtcNow
+            });
+
+            await _projectDbContext.SaveChangesAsync();
+
+            await hubContext.Clients.Group(model.TrackingNumber)
+                .SendAsync("LocationUpdated", model.Latitude, model.Longitude);
+
+            return Ok();
         }
 
         [HttpPut("update/{id}")]

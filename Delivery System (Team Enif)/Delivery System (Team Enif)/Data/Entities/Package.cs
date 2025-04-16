@@ -1,4 +1,5 @@
-﻿using Delivery_System__Team_Enif_.Models;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using Delivery_System__Team_Enif_.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Delivery_System__Team_Enif_.Data.Entities
@@ -19,7 +20,7 @@ namespace Delivery_System__Team_Enif_.Data.Entities
         public int DeliveryTypeId { get; set; }
         public required DeliveryType DeliveryType { get; set; }
         public int DeliveryStatusId { get; set; }
-        public required DeliveryStatus DeliveryStatus { get; set; } 
+        public required DeliveryStatus DeliveryStatus { get; set; }
         public required DateTime DeliveryDate { get; set; }
         public DateTime CreatedDate { get; set; }
         public required ApplicationUser CreatedBy { get; set; }
@@ -32,5 +33,29 @@ namespace Delivery_System__Team_Enif_.Data.Entities
         {
             return Guid.NewGuid().ToString("N")[..12].ToUpper();
         }
+
+        [Column(TypeName = "decimal(9,6)")]
+        public decimal CurrentLatitude { get; set; }
+
+        [Column(TypeName = "decimal(9,6)")]
+        public decimal CurrentLongitude { get; set; }
+
+        public List<PackageLocation> LocationHistory { get; set; } = new();
+    }
+
+    public class PackageLocation
+    {
+        public int Id { get; set; }
+
+        [Column(TypeName = "decimal(9,6)")]
+        public decimal Latitude { get; set; }
+
+        [Column(TypeName = "decimal(9,6)")]
+        public decimal Longitude { get; set; }
+
+        public DateTime Timestamp { get; set; }
+
+        public int PackageId { get; set; }
+        public Package Package { get; set; }
     }
 }
