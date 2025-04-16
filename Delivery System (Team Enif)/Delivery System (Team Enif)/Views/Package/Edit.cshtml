@@ -6,6 +6,7 @@
     var isAdmin = User.IsInRole("Admin");
     var isOfficeAssistant = User.IsInRole("Office assistant");
     var isUser = User.IsInRole("User");
+    var isCourier = User.IsInRole("Courier");
 }
 
 @if (isAdmin || isOfficeAssistant || isUser)
@@ -32,12 +33,26 @@
                         </div>
                     </div>
 
+                    @if (isCourier || isAdmin) {
+                        <div class="form-group">
+                            @Html.DropDownListFor(m => m.DeliveryStatusSelected,
+                                     new SelectList(Enum.GetValues(typeof(DeliveryStatusEnum))
+                                     .Cast<DeliveryStatusEnum>()
+                                     .Select(e => new { Value = (int)e, Text = e.ToString() }),
+                                     "Value", "Text", Model.DeliveryStatusSelected),
+                                     new { @class = "form-control" })
+                            <span asp-validation-for="DeliveryStatusSelected" class="text-danger"></span>
+                        </div>
+
+                    }
+                    else {
                     <div class="form-group">
                         @Html.DropDownListFor(m => m.DeliveryStatusId,
-                                          new SelectList(Model.DeliveryStatuses ?? Enumerable.Empty<SelectListItem>(), "Value", "Text", Model.DeliveryStatusId),
-                                          new { @disabled = "disabled", @class = "form-control" })
+                                 new SelectList(Model.DeliveryStatuses ?? Enumerable.Empty<SelectListItem>(), "Value", "Text", Model.DeliveryStatusId),
+                                 new { @disabled = "disabled", @class = "form-control" })
                         <span asp-validation-for="DeliveryStatusId" class="text-danger"></span>
                     </div>
+                    }
 
                     <div class="form-section">
                         <div class="form-group">
@@ -96,18 +111,24 @@
                     <div class="form-section">
                         <div class="form-group">
                             <label asp-for="OfficeId" class="control-label">Office</label>
+
                             @if (isUser)
                             {
-
-                                @Html.DropDownListFor(m => m.OfficeId, new SelectList(Model.AvailableOffices ?? Enumerable.Empty<Office>(), "Id", "Name", Model.OfficeId), new { @class = "form-control" })
-
+                                @Html.DropDownListFor(
+                                         m => m.OfficeId,
+                                         new SelectList(Model.AvailableOffices ?? Enumerable.Empty<Office>(), "Id", "Name", Model.OfficeId),
+                                         "-- Select Office --", // ensures there's a default blank
+                                         new { @class = "form-control" })
                             }
                             else
                             {
+                                <!-- Show read-only office name and submit OfficeId via hidden input -->
                                 <input type="text"
-                                value="@Model.AvailableOffices?.FirstOrDefault(o => o.Id == Model.OfficeId)?.Name"
-                                readonly class="form-control" />
+                                       value="@Model.AvailableOffices?.FirstOrDefault(o => o.Id == Model.OfficeId)?.Name"
+                                       readonly class="form-control" />
+                                <input type="hidden" asp-for="OfficeId" />
                             }
+
                             <span asp-validation-for="OfficeId" class="text-danger"></span>
                         </div>
 

@@ -327,7 +327,7 @@ namespace Delivery_System__Team_Enif_.Controllers
             ApplicationUser currentUser = await GetCurrentUserAsync();
             if (currentUser == null)
             {
-                RedirectToAction("Login", "Account");
+                return RedirectToAction("Login", "Account");
             }
 
             bool isUserRolePermit = await IsUserRolesPermitAsync(currentUser);
@@ -358,21 +358,21 @@ namespace Delivery_System__Team_Enif_.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (package.DeliveryStatusId != (int)DeliveryStatusEnum.Pending)
+            if (package.DeliveryStatusId == (int)DeliveryStatusEnum.Completed)
             {
-                ModelState.AddModelError(string.Empty, "The package is not editable!");
-                return RedirectToAction("Details");
+                ModelState.AddModelError(string.Empty, "Completed packages cannot be edited.");
+                return RedirectToAction("Details", new { id = package.Id });
             }
 
             var deliveryOptions = Enum.GetValues(typeof(DeliveryOptionEnum))
-                                    .Cast<DeliveryOptionEnum>()
-                                    .Select(t => new SelectListItem
-                                    {
-                                        Value = ((int)t).ToString(),
-                                        Text = t.ToString(),
-                                        Selected = (int)t == package.DeliveryOptionId
-                                    }
-                                    ).ToList();
+                            .Cast<DeliveryOptionEnum>()
+                            .Select(t => new SelectListItem
+                            {
+                                Value = ((int)t).ToString(),
+                                Text = t.ToString(),
+                                Selected = (int)t == package.DeliveryOptionId
+                            }
+                            ).ToList();
             var deliveryStatuses = Enum.GetValues(typeof(DeliveryStatusEnum))
                                .Cast<DeliveryStatusEnum>()
                                .Select(s => new SelectListItem
@@ -410,6 +410,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 DeliveryTypes = deliveryTypes,
                 DeliveryStatusId = package.DeliveryStatusId,
                 DeliveryStatuses = deliveryStatuses,
+                DeliveryStatusSelected = (DeliveryStatusEnum)package.DeliveryStatusId,
                 DeliveryDate = package.DeliveryDate,
 
                 CreatedDate = package.CreatedDate,
@@ -440,12 +441,15 @@ namespace Delivery_System__Team_Enif_.Controllers
                     viewModel.OfficeId = officeId.Value;
                     viewModel.AvailableOffices = availableUserOffices;
                 }
-            } else {
-                if (package.OfficeId != null)
-                {
-                    viewModel.OfficeId = package.OfficeId.Value;
-                }
-                viewModel.AvailableOffices = await officeQuery.ToListAsync();
+            } 
+            else 
+            {
+                viewModel.OfficeId = package.OfficeId ?? 0;
+
+                viewModel.AvailableOffices = await officeQuery
+                .Select(o => new Office { Id = o.Id, Name = o.Name, ContactInfo = o.ContactInfo, WorkingHours = o.WorkingHours, Location = o.Location }) // Only needed props
+                .ToListAsync();
+
             }
 
             await PopulatePackageDropdowns(viewModel);
@@ -455,6 +459,17 @@ namespace Delivery_System__Team_Enif_.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(PackageViewModel viewModel)
         {
+            Console.WriteLine("---- DEBUG START ----");
+            Console.WriteLine("Posted OfficeId: " + viewModel.OfficeId);
+            Console.WriteLine("AvailableOffices count: " + (viewModel.AvailableOffices?.Count() ?? 0));
+            Console.WriteLine("ModelState.IsValid: " + ModelState.IsValid);
+            Console.WriteLine("Model Errors:");
+            foreach (var error in ModelState)
+            {
+                Console.WriteLine($" - {error.Key}: {string.Join(", ", error.Value.Errors.Select(e => e.ErrorMessage))}");
+            }
+            Console.WriteLine("---- DEBUG END ----");
+
             if (!ModelState.IsValid)
             {
                 await PopulatePackageDropdowns(viewModel);
@@ -481,12 +496,14 @@ namespace Delivery_System__Team_Enif_.Controllers
             if (package == null)
             {
                 ModelState.AddModelError(string.Empty, "No package with provided package id found");
+                await PopulatePackageDropdowns(viewModel);
                 return RedirectToAction("Index");
             }
 
             if (User.IsInRole("User") && package.CreatedBy.Id != currentUser.Id)
             {
                 ModelState.AddModelError(string.Empty, "No package with provided package id or package not created by you");
+                await PopulatePackageDropdowns(viewModel);
                 return RedirectToAction("Index");
             }
 
@@ -498,11 +515,9 @@ namespace Delivery_System__Team_Enif_.Controllers
             package.Width = viewModel.Width;
             package.Hight = viewModel.Hight;
             package.Weight = viewModel.Weight;
-            if (_projectDbContext.Offices.Any(o => o.Id == viewModel.OfficeId))
-            {
-                package.OfficeId = viewModel.OfficeId;
-            }
-            else
+
+            if (viewModel.OfficeId <= 0 ||
+                !await _projectDbContext.Offices.AnyAsync(o => o.Id == viewModel.OfficeId))
             {
                 ModelState.AddModelError("OfficeId", "Selected Office is invalid.");
                 await PopulatePackageDropdowns(viewModel);
@@ -510,14 +525,13 @@ namespace Delivery_System__Team_Enif_.Controllers
             }
 
 
+            package.OfficeId = viewModel.OfficeId;
             package.DeliveryOptionId = viewModel.DeliveryOptionId;
             package.DeliveryTypeId = viewModel.DeliveryTypeId;
-            package.DeliveryStatusId = viewModel.DeliveryStatusId;
-
+            package.DeliveryStatusId = (int)viewModel.DeliveryStatusSelected;
             package.DeliveryDate = viewModel.DeliveryDate;
 
             await _projectDbContext.SaveChangesAsync();
-            await PopulatePackageDropdowns(viewModel);
             return RedirectToAction("Index");
         }
 
@@ -697,6 +711,7 @@ namespace Delivery_System__Team_Enif_.Controllers
                 });
 
             model.AvailableOffices = await _projectDbContext.Offices.ToListAsync();
+
         }
 
     }
